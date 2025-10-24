@@ -237,8 +237,6 @@ export default function ApplicationForm() {
       // Initiate checkout after successful application submission
       const checkoutResponse = await apiClient.post("/payments/checkout", {
         appId: response.data.applicationId,
-        successUrl: `${window.location.origin}/student/payment/success?applicationId=${response.data.applicationId}`,
-        cancelUrl: `${window.location.origin}/student/payment/cancel?applicationId=${response.data.applicationId}`,
       });
 
       // Redirect to Stripe checkout
