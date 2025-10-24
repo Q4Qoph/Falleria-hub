@@ -6,9 +6,9 @@ import Process from "../components/Process";
 import Contact from "../components/Contact";
 import CTA from "../components/CTA";
 import Benefits from "../components/Benefits";
-import Navbar from "../components/Navbar";
 import Hero from "../components/Hero";
-import Footer from "../components/Footer";
+import { Navbar } from "@/components/navbar";
+import { Footer } from "@/components/footer";
 
 const Index = () => {
   return (
