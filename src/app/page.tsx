@@ -7,8 +7,8 @@ import Contact from "../components/Contact";
 import CTA from "../components/CTA";
 import Benefits from "../components/Benefits";
 import Hero from "../components/Hero";
-import { Navbar } from "@/components/navbar";
-import { Footer } from "@/components/footer";
+import Navbar from "../components/Navbar";
+import Footer from "../components/Footer";
 
 const Index = () => {
   return (
