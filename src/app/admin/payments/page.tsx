@@ -5,7 +5,7 @@ import apiClient from "@/lib/axios-client";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { DollarSign, CheckCircle2, Clock, CreditCard } from "lucide-react";
-import StatCard from "@/src/components/StatCard";
+import StatCard from "@/components/StatCard";
 import PaymentsSkeleton from "../../student/payment/loading";
 
 interface Application {

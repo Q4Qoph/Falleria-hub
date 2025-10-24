@@ -1,10 +1,10 @@
 "use client";
 
 import { ReactNode, useEffect } from "react";
-import { useAuth } from "@/src/context/auth-context";
+import { useAuth } from "@/context/auth-context";
 import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
-import { cn } from "@/src/lib/utils";
+import { cn } from "@/lib/utils";
 import {
   LayoutDashboard,
   FileText,
