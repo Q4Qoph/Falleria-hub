@@ -22,14 +22,26 @@ apiClient.interceptors.request.use((config) => {
 apiClient.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401) {
+    console.log("Interceptor error:", error)
+
+    const status = error.response?.status
+    const data = error.response?.data
+
+    // Handle both HTTP 401 and JSON error messages
+    if (status === 401 || data?.error === "Unauthorized") {
       if (typeof window !== "undefined") {
+        console.log("Logging out due to unauthorized response...")
         localStorage.removeItem("authToken")
         window.location.href = "/login"
       }
+    } else if (!error.response) {
+      // Log network or CORS errors
+      console.warn("No response received from server. Check network/CORS.")
     }
+
     return Promise.reject(error)
   },
 )
+
 
 export default apiClient

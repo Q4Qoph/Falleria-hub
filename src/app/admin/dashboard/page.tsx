@@ -1,173 +1,202 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import apiClient from "@/lib/axios-client";
+import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import {
+  FileText,
+  Clock,
+  DollarSign,
+  MessageSquare,
+  ArrowRight,
+  MapPin,
+} from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
+import dashboardHero from "../../../../public/dashboard-hero.jpg";
+import AdminDashboardSkeleton from "./loading";
 
-interface DashboardStats {
-  totalApplicationsThisMonth: number;
-  applicationsAwaitingReview: number;
-  totalRevenueThisMonth: number;
-  newContactInquiries: number;
-  recentApplications: any[];
-}
+// Utility function for status badge colors
+const getStatusBadge = (status: string) => {
+  const map: Record<string, string> = {
+    "Awaiting Payment": "bg-yellow-400 text-white",
+    Processing: "bg-blue-500 text-white",
+    "Under Review": "bg-amber-500 text-white",
+    "Additional Documents Required": "bg-orange-500 text-white",
+    "Submitted to Institution": "bg-indigo-500 text-white",
+    "Awaiting Institution Decision": "bg-purple-500 text-white",
+    "Offer Received": "bg-green-600 text-white",
+    "Conditional Offer": "bg-emerald-500 text-white",
+    "Application Unsuccessful": "bg-red-500 text-white",
+    Completed: "bg-gray-700 text-white",
+  };
+  return map[status] || "bg-gray-300 text-gray-700";
+};
 
 export default function AdminDashboard() {
-  const [stats, setStats] = useState<DashboardStats | null>(null);
-  const [loading, setLoading] = useState(true);
+  const {
+    data: stats,
+    isLoading,
+    isError,
+  } = useQuery({
+    queryKey: ["adminDashboard"],
+    queryFn: async () => {
+      const res = await apiClient.get("/dashboard/admin");
+      return res.data;
+    },
+  });
 
-  useEffect(() => {
-    const fetchStats = async () => {
-      try {
-        const response = await apiClient.get("/dashboard/admin");
-        setStats(response.data);
-      } catch (error) {
-        console.error("Error fetching dashboard stats:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
+  if (isLoading) {
+    return <AdminDashboardSkeleton/>
+  }
 
-    fetchStats();
-  }, []);
-
-  if (loading) {
+  if (isError || !stats) {
     return (
-      <div className="p-8 flex items-center justify-center min-h-screen">
-        <div className="text-center">
-          <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-          <p className="text-secondary">Loading dashboard...</p>
-        </div>
+      <div className="p-8 text-center text-red-500">
+        Failed to load dashboard data.
       </div>
     );
   }
 
-  return (
-    <div className="p-8">
-      <h1 className="text-3xl font-bold mb-8">Dashboard</h1>
+  const metrics = [
+    {
+      title: "Applications This Month",
+      value: stats.keyMetrics.totalApplicationsThisMonth || 0,
+      icon: FileText,
+      textColor: "text-primary",
+    },
+    {
+      title: "Awaiting Review",
+      value: stats.keyMetrics.applicationsAwaitingReview || 0,
+      icon: Clock,
+      textColor: "text-yellow-600",
+    },
+    {
+      title: "Revenue This Month",
+      value: `$${stats.keyMetrics.totalRevenueThisMonth || 0}`,
+      icon: DollarSign,
+      textColor: "text-green-600",
+    },
+    {
+      title: "New Inquiries",
+      value: stats.keyMetrics.newContactInquiries || 0,
+      icon: MessageSquare,
+      textColor: "text-purple-600",
+    },
+  ];
 
-      {/* Key Metrics */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-        {[
-          {
-            label: "Applications This Month",
-            value: stats?.totalApplicationsThisMonth || 0,
-            icon: "📋",
-            color: "bg-blue-50",
-          },
-          {
-            label: "Awaiting Review",
-            value: stats?.applicationsAwaitingReview || 0,
-            icon: "⏳",
-            color: "bg-yellow-50",
-          },
-          {
-            label: "Revenue This Month",
-            value: `$${stats?.totalRevenueThisMonth || 0}`,
-            icon: "💰",
-            color: "bg-green-50",
-          },
-          {
-            label: "New Inquiries",
-            value: stats?.newContactInquiries || 0,
-            icon: "💬",
-            color: "bg-purple-50",
-          },
-        ].map((metric, idx) => (
-          <div
+  return (
+    <div className="space-y-8">
+      {/* ===== Hero Section ===== */}
+      <div className="relative h-48 rounded-2xl overflow-hidden shadow-lg">
+        <Image
+          src={dashboardHero}
+          alt="Admin Overview"
+          className="w-full h-full object-cover"
+        />
+        <div className="absolute inset-0 bg-linear-to-r from-primary/90 to-accent/70 flex items-center px-8">
+          <div className="text-white">
+            <h1 className="text-4xl font-bold mb-2">Admin Dashboard</h1>
+            <p className="text-lg text-white/90">
+              Monitor applications, payments, and inquiries in real-time
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* ===== Stats Grid ===== */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        {metrics.map((metric, idx) => (
+          <Card
             key={idx}
-            className={`${metric.color} p-6 rounded-lg border border-border`}
+            className="p-6 shadow-md border-0 hover:shadow-lg transition-all duration-300"
           >
             <div className="flex items-start justify-between">
               <div>
-                <p className="text-secondary text-sm mb-2">{metric.label}</p>
-                <p className="text-3xl font-bold text-foreground">
+                <p className={`text-sm mb-2 ${metric.textColor}`}>
+                  {metric.title}
+                </p>
+                <p className="text-3xl font-bold text-gray-900">
                   {metric.value}
                 </p>
               </div>
-              <span className="text-3xl">{metric.icon}</span>
+              <div
+                className={`w-10 h-10 rounded-lg flex items-center justify-center bg-gray-50 shadow-sm ${metric.textColor}`}
+              >
+                <metric.icon className="w-5 h-5" />
+              </div>
             </div>
-          </div>
+          </Card>
         ))}
       </div>
 
-      {/* Recent Applications */}
-      <div className="bg-white rounded-lg shadow border border-border">
-        <div className="p-6 border-b border-border flex items-center justify-between">
-          <h2 className="text-xl font-bold">Recent Applications</h2>
-          <Link
-            href="/admin/applications"
-            className="text-primary hover:underline text-sm"
-          >
-            View All
+      {/* ===== Recent Applications ===== */}
+      <Card className="p-6 border-0 shadow-md">
+        <div className="flex items-center justify-between mb-6">
+          <div>
+            <h2 className="text-2xl font-bold">Recent Applications</h2>
+            <p className="text-sm text-muted-foreground mt-1">
+              Latest student submissions and their progress
+            </p>
+          </div>
+          <Link href="/admin/applications">
+            <Button variant="outline" className="gap-2 text-white">
+              View All
+              <ArrowRight className="w-4 h-4" />
+            </Button>
           </Link>
         </div>
 
-        {stats?.recentApplications && stats.recentApplications.length > 0 ? (
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead className="bg-neutral-50 border-b border-border">
-                <tr>
-                  <th className="px-6 py-4 text-left text-sm font-semibold">
-                    Student Name
-                  </th>
-                  <th className="px-6 py-4 text-left text-sm font-semibold">
-                    Email
-                  </th>
-                  <th className="px-6 py-4 text-left text-sm font-semibold">
-                    University
-                  </th>
-                  <th className="px-6 py-4 text-left text-sm font-semibold">
-                    Status
-                  </th>
-                  <th className="px-6 py-4 text-left text-sm font-semibold">
-                    Date
-                  </th>
-                  <th className="px-6 py-4 text-left text-sm font-semibold">
-                    Action
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {stats.recentApplications.map((app) => (
-                  <tr
-                    key={app.id}
-                    className="border-b border-border hover:bg-neutral-50 transition"
-                  >
-                    <td className="px-6 py-4 text-sm font-semibold">
+        {stats.recentApplications?.length ? (
+          <div className="space-y-4">
+            {stats.recentApplications.map((app: any) => (
+              <div
+                key={app.applicationId}
+                className="flex items-center justify-between p-4 rounded-lg bg-secondary/50 hover:bg-secondary transition-all duration-200"
+              >
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 rounded-lg bg-[#3aacde] flex items-center justify-center shadow-md">
+                    <FileText className="w-6 h-6 text-white" />
+                  </div>
+
+                  <div>
+                    <h3 className="font-semibold text-foreground">
                       {app.studentName}
-                    </td>
-                    <td className="px-6 py-4 text-sm text-secondary">
+                    </h3>
+                    <div className="flex items-center gap-2 mt-1 text-muted-foreground">
+                      <MapPin className="w-3 h-3" />
+                      <p className="text-sm">{app.country}</p>
+                      <span>•</span>
+                      <p className="text-sm">{app.mainUniversityChoice}</p>
+                    </div>
+                    <p className="text-xs text-muted-foreground mt-1">
                       {app.email}
-                    </td>
-                    <td className="px-6 py-4 text-sm">{app.university}</td>
-                    <td className="px-6 py-4">
-                      <span className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-semibold">
-                        {app.status}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 text-sm text-secondary">
-                      {new Date(app.submissionDate).toLocaleDateString()}
-                    </td>
-                    <td className="px-6 py-4">
-                      <Link
-                        href={`/admin/applications/${app.id}`}
-                        className="text-primary hover:underline text-sm"
-                      >
-                        Review
-                      </Link>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex flex-col items-end gap-2">
+                  <Badge className={getStatusBadge(app.status)}>
+                    {app.status}
+                  </Badge>
+                  <Link
+                    href={`/admin/applications/${app.applicationId}`}
+                    className="text-primary hover:underline text-sm font-medium"
+                  >
+                    Review
+                  </Link>
+                </div>
+              </div>
+            ))}
           </div>
         ) : (
-          <div className="p-12 text-center text-secondary">
-            No recent applications
+          <div className="p-12 text-center text-muted-foreground">
+            No recent applications found.
           </div>
         )}
-      </div>
+      </Card>
     </div>
   );
 }

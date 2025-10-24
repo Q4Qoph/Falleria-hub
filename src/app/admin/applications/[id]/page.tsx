@@ -75,7 +75,7 @@ export default function ApplicationDetail() {
   const handleStatusUpdate = async () => {
     setUpdating(true)
     try {
-      await apiClient.put(`/admin/applications/${applicationId}`, {
+      await apiClient.patch(`/applications/${applicationId}/status`, {
         status: newStatus,
         adminNotes: notes,
       })

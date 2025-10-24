@@ -1,186 +1,188 @@
-"use client"
+"use client";
 
-import { useEffect, useState } from "react"
-import { useAuth } from "@/context/auth-context"
-import apiClient from "@/lib/axios-client"
-import Link from "next/link"
+import { useQuery } from "@tanstack/react-query";
+import apiClient from "@/lib/axios-client";
+import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import {
+  FileText,
+  Clock,
+  CheckCircle2,
+  DollarSign,
+  ArrowRight,
+  MapPin,
+} from "lucide-react";
+import Image from "next/image";
+import Link from "next/link";
+import dashboardHero from "../../../../public/dashboard-hero.jpg";
+import StudentDashboardSkeleton from "./loading";
 
-interface Application {
-  id: string
-  universityChoice: string
-  submissionDate: string
-  status: string
-  statusColor: string
-}
-
-const statusColors: Record<string, string> = {
-  "Awaiting Payment": "bg-yellow-100 text-yellow-800",
-  Processing: "bg-blue-100 text-blue-800",
-  "Under Review": "bg-purple-100 text-purple-800",
-  "Additional Documents Required": "bg-orange-100 text-orange-800",
-  "Submitted to Institution": "bg-indigo-100 text-indigo-800",
-  "Awaiting Institution Decision": "bg-cyan-100 text-cyan-800",
-  "Offer Received": "bg-green-100 text-green-800",
-  "Application Unsuccessful": "bg-red-100 text-red-800",
-  "Completed / Closed": "bg-gray-100 text-gray-800",
-}
+// Utility function for status badge colors
+const getStatusBadge = (status: string) => {
+  const map: Record<string, string> = {
+    Processing: "bg-blue-500 text-white",
+    Pending: "bg-yellow-400 text-white",
+    Accepted: "bg-green-600 text-white",
+    Rejected: "bg-red-500 text-white",
+    Completed: "bg-gray-700 text-white",
+  };
+  return map[status] || "bg-gray-300 text-gray-700";
+};
 
 export default function StudentDashboard() {
-  const { user } = useAuth()
-  const [applications, setApplications] = useState<Application[]>([])
-  const [loading, setLoading] = useState(true)
+  const {
+    data: stats,
+    isLoading,
+    isError,
+  } = useQuery({
+    queryKey: ["studentDashboard"],
+    queryFn: async () => {
+      const res = await apiClient.get("/dashboard/student");
+      return res.data;
+    },
+  });
 
-  useEffect(() => {
-    const fetchApplications = async () => {
-      try {
-        const response = await apiClient.get("/applications/my-applications")
-        const apps = response.data.applications.map((app: any) => ({
-          id: app.id,
-          universityChoice: app.coursePreferences?.universities?.[0] || "Not specified",
-          submissionDate: new Date(app.submissionDate).toLocaleDateString(),
-          status: app.status,
-          statusColor: statusColors[app.status] || "bg-gray-100 text-gray-800",
-        }))
-        setApplications(apps)
-      } catch (error) {
-        console.error("Error fetching applications:", error)
-      } finally {
-        setLoading(false)
-      }
-    }
+  if (isLoading) {
+    return (
+      <StudentDashboardSkeleton/>
+    );
+  }
 
-    fetchApplications()
-  }, [])
+  if (isError || !stats) {
+    return (
+      <div className="p-8 text-center text-red-500">
+        Failed to load dashboard data.
+      </div>
+    );
+  }
+
+  const metrics = [
+    {
+      title: "Total Applications",
+      value: stats.summary.totalApplications || 0,
+      icon: FileText,
+      textColor: "text-primary",
+    },
+    {
+      title: "Pending Applications",
+      value: stats.summary.pendingApplications || 0,
+      icon: Clock,
+      textColor: "text-yellow-600",
+    },
+    {
+      title: "Successful Applications",
+      value: stats.summary.successfulApplications || 0,
+      icon: CheckCircle2,
+      textColor: "text-green-600",
+    },
+    {
+      title: "Total Paid",
+      value: `$${stats.summary.totalPaid || 0}`,
+      icon: DollarSign,
+      textColor: "text-accent",
+    },
+  ];
 
   return (
-    <div className="min-h-screen bg-neutral-50">
-      {/* Header */}
-      <div className="bg-primary text-white py-8">
-        <div className="container-custom">
-          <h1 className="text-3xl font-bold mb-2">Welcome, {user?.firstName}!</h1>
-          <p className="text-primary-light">Track your application status and manage your profile</p>
+    <div className="space-y-8">
+      {/* ===== Hero Section ===== */}
+      <div className="relative h-48 rounded-2xl overflow-hidden shadow-lg">
+        <Image
+          src={dashboardHero}
+          alt="Student Dashboard"
+          className="w-full h-full object-cover"
+        />
+        <div className="absolute inset-0 bg-linear-to-r from-primary/90 to-accent/70 flex items-center px-8">
+          <div className="text-white">
+            <h1 className="text-4xl font-bold mb-2">Student Dashboard</h1>
+            <p className="text-lg text-white/90">
+              Track your applications and payments in real-time
+            </p>
+          </div>
         </div>
       </div>
 
-      {/* Main Content */}
-      <div className="container-custom py-12">
-        {/* Quick Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-          <div className="bg-white p-6 rounded-lg shadow">
-            <p className="text-secondary text-sm mb-2">Total Applications</p>
-            <p className="text-3xl font-bold text-primary">{applications.length}</p>
-          </div>
-          <div className="bg-white p-6 rounded-lg shadow">
-            <p className="text-secondary text-sm mb-2">Under Review</p>
-            <p className="text-3xl font-bold text-primary">
-              {applications.filter((a) => a.status === "Under Review").length}
+      {/* ===== Stats Grid ===== */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        {metrics.map((metric, idx) => (
+          <Card
+            key={idx}
+            className="p-6 shadow-md border-0 hover:shadow-lg transition-all duration-300"
+          >
+            <div className="flex items-start justify-between">
+              <div>
+                <p className={`text-sm mb-2 ${metric.textColor}`}>
+                  {metric.title}
+                </p>
+                <p className="text-3xl font-bold text-gray-900">
+                  {metric.value}
+                </p>
+              </div>
+              <div
+                className={`w-10 h-10 rounded-lg flex items-center justify-center bg-gray-50 shadow-sm ${metric.textColor}`}
+              >
+                <metric.icon className="w-5 h-5" />
+              </div>
+            </div>
+          </Card>
+        ))}
+      </div>
+
+      {/* ===== Recent Applications ===== */}
+      <Card className="p-6 border-0 shadow-md">
+        <div className="flex items-center justify-between mb-6">
+          <div>
+            <h2 className="text-2xl font-bold">Recent Applications</h2>
+            <p className="text-sm text-muted-foreground mt-1">
+              Track your latest submissions
             </p>
           </div>
-          <div className="bg-white p-6 rounded-lg shadow">
-            <p className="text-secondary text-sm mb-2">Offers Received</p>
-            <p className="text-3xl font-bold text-primary">
-              {applications.filter((a) => a.status === "Offer Received").length}
-            </p>
-          </div>
+          <Link href="/student/application">
+            <Button variant="outline" className="gap-2 text-white">
+              View All
+              <ArrowRight className="w-4 h-4" />
+            </Button>
+          </Link>
         </div>
 
-        {/* Applications Table */}
-        <div className="bg-white rounded-lg shadow overflow-hidden">
-          <div className="p-6 border-b border-border">
-            <div className="flex items-center justify-between">
-              <h2 className="text-2xl font-bold">My Applications</h2>
-              <Link href="/student/application" className="btn-primary text-sm">
-                New Application
-              </Link>
-            </div>
-          </div>
+        {stats.applications?.length ? (
+          <div className="space-y-4">
+            {stats.applications.map((app: any) => (
+              <div
+                key={app.applicationId}
+                className="flex items-center justify-between p-4 rounded-lg bg-secondary/50 hover:bg-secondary transition-all duration-200"
+              >
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 rounded-lg bg-[#3aacde] flex items-center justify-center shadow-md">
+                    <FileText className="w-6 h-6 text-white" />
+                  </div>
 
-          {loading ? (
-            <div className="p-12 text-center">
-              <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-              <p className="text-secondary">Loading applications...</p>
-            </div>
-          ) : applications.length === 0 ? (
-            <div className="p-12 text-center">
-              <p className="text-secondary mb-4">You haven't submitted any applications yet.</p>
-              <Link href="/student/application" className="btn-primary inline-block">
-                Start Your First Application
-              </Link>
-            </div>
-          ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead className="bg-neutral-50 border-b border-border">
-                  <tr>
-                    <th className="px-6 py-4 text-left text-sm font-semibold text-foreground">Application ID</th>
-                    <th className="px-6 py-4 text-left text-sm font-semibold text-foreground">University</th>
-                    <th className="px-6 py-4 text-left text-sm font-semibold text-foreground">Submission Date</th>
-                    <th className="px-6 py-4 text-left text-sm font-semibold text-foreground">Status</th>
-                    <th className="px-6 py-4 text-left text-sm font-semibold text-foreground">Action</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {applications.map((app) => (
-                    <tr key={app.id} className="border-b border-border hover:bg-neutral-50 transition">
-                      <td className="px-6 py-4 text-sm font-mono text-secondary">{app.id.slice(0, 8)}...</td>
-                      <td className="px-6 py-4 text-sm text-foreground">{app.universityChoice}</td>
-                      <td className="px-6 py-4 text-sm text-secondary">{app.submissionDate}</td>
-                      <td className="px-6 py-4">
-                        <span className={`px-3 py-1 rounded-full text-xs font-semibold ${app.statusColor}`}>
-                          {app.status}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4">
-                        <Link href={`/student/application/${app.id}`} className="text-primary hover:underline text-sm">
-                          View Details
-                        </Link>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </div>
+                  <div>
+                    <h3 className="font-semibold text-foreground">
+                      {app.mainUniversityChoice}
+                    </h3>
+                    <div className="flex items-center gap-2 mt-1 text-muted-foreground">
+                      <MapPin className="w-3 h-3" />
+                      <p className="text-sm">{app.country}</p>
+                      <span>•</span>
+                      <p className="text-sm">{app.courseName}</p>
+                    </div>
+                  </div>
+                </div>
 
-        {/* Status Guide */}
-        <div className="mt-12 bg-white rounded-lg shadow p-6">
-          <h3 className="text-xl font-bold mb-6">Application Status Guide</h3>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {[
-              {
-                status: "Awaiting Payment",
-                description: "Your application form has been submitted. Please complete the payment to proceed.",
-              },
-              {
-                status: "Processing",
-                description: "Payment confirmed. Your application is in our queue for initial review.",
-              },
-              {
-                status: "Under Review",
-                description: "Our team is actively reviewing your application and documents.",
-              },
-              {
-                status: "Additional Documents Required",
-                description: "We need more information. Please check your email for details.",
-              },
-              {
-                status: "Submitted to Institution",
-                description: "Your application has been sent to the university.",
-              },
-              {
-                status: "Offer Received",
-                description: "Congratulations! You have received an offer from the university.",
-              },
-            ].map((item, idx) => (
-              <div key={idx} className="p-4 border border-border rounded-lg">
-                <p className="font-semibold text-primary mb-2">{item.status}</p>
-                <p className="text-sm text-secondary">{item.description}</p>
+                <Badge className={getStatusBadge(app.status)}>
+                  {app.status}
+                </Badge>
               </div>
             ))}
           </div>
-        </div>
-      </div>
+        ) : (
+          <div className="p-12 text-center text-muted-foreground">
+            No recent applications found.
+          </div>
+        )}
+      </Card>
     </div>
-  )
+  );
 }
