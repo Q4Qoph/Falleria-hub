@@ -8,8 +8,9 @@ import Providers from "../providers/RQuery";
 const geistSans = Geist({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Global Education Gateway",
-  description: "Your pathway to international education excellence",
+  title: "Falleria Hub International",
+  description:
+    "Expert guidance for international university admissions. We simplify the process and help you achieve your dreams of studying abroad.",
 };
 
 export default function RootLayout({
