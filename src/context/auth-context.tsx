@@ -1,78 +1,147 @@
-"use client"
+"use client";
 
-import type React from "react"
-import { createContext, useContext, useState, useEffect } from "react"
-import apiClient from "@/lib/axios-client"
+import { useRouter } from "next/navigation";
+import {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  type ReactNode,
+} from "react";
 
 interface User {
-  id: string
-  firstName: string
-  lastName: string
-  email: string
-  role: "student" | "admin"
+  id: string;
+  email: string;
+  firstName: string;
+  role: "student" | "admin";
 }
 
 interface AuthContextType {
-  user: User | null
-  loading: boolean
-  login: (email: string, password: string) => Promise<void>
-  signup: (firstName: string, lastName: string, email: string, password: string) => Promise<void>
-  logout: () => void
-  isAuthenticated: boolean
+  user: User | null;
+  isLoading: boolean;
+  login: (email: string, password: string) => Promise<void>;
+  signup: (
+    firstName: string,
+    lastName: string,
+    email: string,
+    password: string
+  ) => Promise<void>;
+  logout: () => void;
+  isAuthenticated: boolean;
 }
 
-const AuthContext = createContext<AuthContextType | undefined>(undefined)
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<User | null>(null)
-  const [loading, setLoading] = useState(true)
+export function AuthProvider({ children }: { children: ReactNode }) {
+  const [user, setUser] = useState<User | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  const router = useRouter();
 
   useEffect(() => {
-    // Check if user is already logged in
-    const checkAuth = async () => {
-      const token = localStorage.getItem("authToken")
-      if (token) {
-        try {
-          const response = await apiClient.get("/auth/profile")
-          setUser(response.data.user)
-        } catch (error) {
-          localStorage.removeItem("authToken")
-        }
+    const storedUser =
+      typeof window !== "undefined" ? localStorage.getItem("user") : null;
+    if (storedUser) {
+      try {
+        setUser(JSON.parse(storedUser));
+      } catch (error) {
+        console.error("Failed to parse stored user:", error);
       }
-      setLoading(false)
     }
-
-    checkAuth()
-  }, [])
+    setIsLoading(false);
+  }, []);
 
   const login = async (email: string, password: string) => {
-    const response = await apiClient.post("/auth/login", { email, password })
-    localStorage.setItem("authToken", response.data.token)
-    setUser(response.data.user)
-  }
+    setIsLoading(true);
+    try {
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/auth/login`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, password }),
+        }
+      );
 
-  const signup = async (firstName: string, lastName: string, email: string, password: string) => {
-    const response = await apiClient.post("/auth/signup", { firstName, lastName, email, password })
-    localStorage.setItem("authToken", response.data.token)
-    setUser(response.data.user)
-  }
+      if (!response.ok) {
+        throw new Error("Login failed");
+      }
+
+      const data = await response.json();
+      const user = data.user;
+      setUser(user);
+
+      localStorage.setItem("user", JSON.stringify(data.user));
+      localStorage.setItem("authToken", data.token);
+
+      if (user.role === "admin") {
+        router.push("/admin/dashboard");
+      } else if (user.role === "student") {
+        router.push("/student/dashboard");
+      } else {
+        router.push("/signup"); // fallback if role is unknown
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const signup = async (
+    firstName: string,
+    lastName: string,
+    email: string,
+    password: string
+  ) => {
+    setIsLoading(true);
+    try {
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/auth/signup`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ firstName, lastName, email, password }),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Signup failed");
+      }
+
+      const data = await response.json();
+      setUser(data.user);
+      localStorage.setItem("user", JSON.stringify(data.user));
+      localStorage.setItem("authToken", data.token);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const logout = () => {
-    localStorage.removeItem("authToken")
-    setUser(null)
-  }
+    setUser(null);
+    localStorage.removeItem("user");
+    localStorage.removeItem("authToken");
+  };
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, signup, logout, isAuthenticated: !!user }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        isLoading,
+        login,
+        signup,
+        logout,
+        isAuthenticated: !!user,
+      }}
+    >
       {children}
     </AuthContext.Provider>
-  )
+  );
 }
 
 export function useAuth() {
-  const context = useContext(AuthContext)
-  if (!context) {
-    throw new Error("useAuth must be used within AuthProvider")
+  const context = useContext(AuthContext);
+  if (context === undefined) {
+    throw new Error("useAuth must be used within an AuthProvider");
   }
-  return context
+  return context;
 }

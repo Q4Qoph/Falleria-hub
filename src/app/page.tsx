@@ -1,14 +1,13 @@
 "use client";
 
-// import Hero from "../components/Hero";
-import Services from "../components/Services";
-import Process from "../components/Process";
-import Contact from "../components/Contact";
-import CTA from "../components/CTA";
-import Benefits from "../components/Benefits";
-import Hero from "../components/Hero";
-import Navbar from "../components/Navbar";
-import Footer from "../components/Footer";
+import Benefits from "@/components/Benefits";
+import Contact from "@/components/Contact";
+import CTA from "@/components/CTA";
+import Footer from "@/components/Footer";
+import Hero from "@/components/Hero";
+import Navbar from "@/components/Navbar";
+import Process from "@/components/Process";
+import Services from "@/components/Services";
 
 const Index = () => {
   return (

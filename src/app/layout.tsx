@@ -2,7 +2,7 @@ import type React from "react";
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import { AuthProvider } from "@/context/auth-context";
+import { AuthProvider } from "@/src/context/auth-context";
 import Providers from "../providers/RQuery";
 
 const geistSans = Geist({ subsets: ["latin"] });

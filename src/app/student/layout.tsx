@@ -4,10 +4,10 @@ import { ReactNode, useEffect } from "react";
 import { LayoutDashboard, FileText, CreditCard, LogOut } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { cn } from "@/lib/utils";
+import { cn } from "@/src/lib/utils";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
-import { useAuth } from "@/context/auth-context";
+import { useAuth } from "@/src/context/auth-context";
 
 interface DashboardLayoutProps {
   children: ReactNode;

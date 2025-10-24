@@ -5,7 +5,7 @@ import type React from "react";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import apiClient from "@/lib/axios-client";
-import { useAuth } from "@/context/auth-context";
+import { useAuth } from "@/src/context/auth-context";
 
 type FormStep = 1 | 2 | 3 | 4 | 5;
 
