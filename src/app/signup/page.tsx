@@ -6,6 +6,7 @@ import { useState } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { useAuth } from "@/context/auth-context"
+import { Button } from "@/components/ui/button"
 
 export default function SignUp() {
   const [formData, setFormData] = useState({
@@ -113,9 +114,9 @@ export default function SignUp() {
             className="w-full px-4 py-3 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
           />
 
-          <button type="submit" disabled={loading} className="w-full btn-primary disabled:opacity-50 py-3">
+          <Button size="lg" type="submit" disabled={loading} className="w-full btn-primary disabled:opacity-50 py-3">
             {loading ? "Creating Account..." : "Create Account"}
-          </button>
+          </Button>
         </form>
 
         <p className="text-center text-secondary mt-6">
