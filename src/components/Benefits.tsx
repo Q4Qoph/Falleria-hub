@@ -34,12 +34,15 @@ const Benefits = () => {
           <div>
             <h2 className="text-4xl md:text-5xl font-bold mb-6">
               Why Choose
-              <span className="bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent block">
+              <span className="bg-linear-to-r from-primary to-secondary bg-clip-text text-transparent block">
                 EduGlobal
               </span>
             </h2>
+
             <p className="text-xl text-muted-foreground mb-8 leading-relaxed">
-              We're not just another education consultancy. We're your partners in achieving your academic dreams with personalized guidance and proven success.
+              We're not just another education consultancy. We're your partners
+              in achieving your academic dreams with personalized guidance and
+              proven success.
             </p>
 
             <div className="grid sm:grid-cols-2 gap-6">
@@ -52,7 +55,9 @@ const Benefits = () => {
                     <benefit.icon className="h-6 w-6 text-primary" />
                   </div>
                   <h3 className="font-bold text-lg mb-2">{benefit.title}</h3>
-                  <p className="text-muted-foreground text-sm">{benefit.description}</p>
+                  <p className="text-muted-foreground text-sm">
+                    {benefit.description}
+                  </p>
                 </div>
               ))}
             </div>

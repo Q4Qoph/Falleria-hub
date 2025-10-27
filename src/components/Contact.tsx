@@ -6,11 +6,14 @@ import { Mail, MapPin, Phone } from "lucide-react";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { z } from "zod";
+import apiClient from "@/lib/axios-client";
 
+// ✅ Updated schema to include "subject"
 const contactSchema = z.object({
   name: z.string().trim().min(1, "Name is required").max(100, "Name must be less than 100 characters"),
   email: z.string().trim().email("Invalid email address").max(255, "Email must be less than 255 characters"),
   phone: z.string().trim().min(1, "Phone is required").max(20, "Phone must be less than 20 characters"),
+  subject: z.string().trim().min(1, "Subject is required").max(150, "Subject must be less than 150 characters"),
   message: z.string().trim().min(1, "Message is required").max(1000, "Message must be less than 1000 characters"),
 });
 
@@ -20,34 +23,47 @@ const Contact = () => {
     name: "",
     email: "",
     phone: "",
+    subject: "",
     message: "",
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     try {
       contactSchema.parse(formData);
       setErrors({});
-      
-      // Here you would typically send the data to your backend
+      setIsSubmitting(true);
+
+      await apiClient.post("/inquiries", formData);
+
       toast({
         title: "Message sent!",
         description: "We'll get back to you within 24 hours.",
       });
-      
-      setFormData({ name: "", email: "", phone: "", message: "" });
+
+      setFormData({ name: "", email: "", phone: "", subject: "", message: "" });
     } catch (error) {
       if (error instanceof z.ZodError) {
+        // Validation errors
         const newErrors: Record<string, string> = {};
         error.errors.forEach((err) => {
-          if (err.path[0]) {
-            newErrors[err.path[0].toString()] = err.message;
-          }
+          if (err.path[0]) newErrors[err.path[0].toString()] = err.message;
         });
         setErrors(newErrors);
+      } else {
+        // API or network error
+        console.error(error);
+        toast({
+          title: "Error",
+          description: "Something went wrong while sending your message. Please try again.",
+          variant: "destructive",
+        });
       }
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -56,7 +72,6 @@ const Contact = () => {
       ...prev,
       [e.target.name]: e.target.value,
     }));
-    // Clear error when user starts typing
     if (errors[e.target.name]) {
       setErrors((prev) => ({ ...prev, [e.target.name]: "" }));
     }
@@ -66,9 +81,7 @@ const Contact = () => {
     <section id="contact" className="py-24">
       <div className="container mx-auto px-4">
         <div className="text-center max-w-3xl mx-auto mb-16">
-          <h2 className="text-4xl md:text-5xl font-bold mb-4">
-            Get in Touch
-          </h2>
+          <h2 className="text-4xl md:text-5xl font-bold mb-4">Get in Touch</h2>
           <p className="text-xl text-muted-foreground">
             Have questions? We're here to help. Send us a message and we'll respond as soon as possible.
           </p>
@@ -121,6 +134,21 @@ const Contact = () => {
                 {errors.phone && <p className="text-sm text-destructive mt-1">{errors.phone}</p>}
               </div>
 
+              {/* ✅ New Subject Field */}
+              <div>
+                <Label htmlFor="subject">Subject</Label>
+                <Input
+                  id="subject"
+                  name="subject"
+                  value={formData.subject}
+                  onChange={handleChange}
+                  placeholder="Inquiry about studying in Canada"
+                  className="mt-2"
+                  maxLength={150}
+                />
+                {errors.subject && <p className="text-sm text-destructive mt-1">{errors.subject}</p>}
+              </div>
+
               <div>
                 <Label htmlFor="message">Message</Label>
                 <Textarea
@@ -135,8 +163,8 @@ const Contact = () => {
                 {errors.message && <p className="text-sm text-destructive mt-1">{errors.message}</p>}
               </div>
 
-              <Button type="submit" className="w-full" size="lg">
-                Send Message
+              <Button type="submit" className="w-full" size="lg" disabled={isSubmitting}>
+                {isSubmitting ? "Sending..." : "Send Message"}
               </Button>
             </form>
           </div>
