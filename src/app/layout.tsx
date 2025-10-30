@@ -1,11 +1,18 @@
 import type React from "react";
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Poppins } from "next/font/google"; // Add Poppins
 import "./globals.css";
 import { AuthProvider } from "@/context/auth-context";
 import Providers from "../providers/RQuery";
 
-const geistSans = Geist({ subsets: ["latin"] });
+// Initialize Geist and Poppins fonts
+const poppins = Poppins({
+  subsets: ["latin"],
+  weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"],
+  style: ["normal", "italic"],
+  variable: "--font-poppins",
+  display: "swap", // Prevents FOIT (Flash of Invisible Text)
+});
 
 export const metadata: Metadata = {
   title: "Falleria Hub International",
@@ -20,7 +27,8 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={`${geistSans.className}`}>
+      <body 
+      className={`${poppins.variable} font-poppins`}>
         <Providers>
           <AuthProvider>{children}</AuthProvider>
         </Providers>

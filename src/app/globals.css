@@ -6,6 +6,10 @@
 /* @custom-variant dark (&:is(.dark *)); */
 
 /* === Design System: Colors (HSL-based) === */
+body {
+  font-family: 'Poppins', sans-serif;
+}
+
 :root {
   --background: 198 71 55;
   --foreground: 225 20% 20%;
@@ -16,7 +20,7 @@
   --popover: 0 0% 100%;
   --popover-foreground: 225 20% 20%;
 
-  --primary: 198 71 55;
+  --primary: 153.73, 91.37%, 50%;
   --primary-foreground: 0 0% 100%;
 
   --secondary: 220 20% 92%;

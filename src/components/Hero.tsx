@@ -52,11 +52,11 @@ export default function Hero() {
         </div>
 
         {/* Content */}
-        <div className="container mx-auto px-4 relative z-10">
+        <div className="container mx-auto px-4 relative z-10 pt-10">
           <div className="max-w-3xl">
             <h1 className="text-5xl md:text-7xl font-bold mb-6 leading-tight drop-shadow-sm text-white">
               Your Journey to
-              <span className="text-primary drop-shadow-sm block">
+              <span className="text-primary  block">
                 Global Education
               </span>
               Starts Here
@@ -89,7 +89,7 @@ export default function Hero() {
             {/* Stats */}
             <div className="grid grid-cols-3 gap-8 mt-12 pt-8 border-t border-border/50">
               <div>
-                <div className="text-3xl md:text-4xl font-bold text-primary">
+                <div className="text-3xl md:text-4xl font-bold text-secondary">
                   500+
                 </div>
                 <div className="text-sm text-muted-foreground mt-1">
@@ -105,7 +105,7 @@ export default function Hero() {
                 </div>
               </div>
               <div>
-                <div className="text-3xl md:text-4xl font-bold text-primary">
+                <div className="text-3xl md:text-4xl font-bold text-secondary">
                   50+
                 </div>
                 <div className="text-sm text-muted-foreground mt-1">
@@ -187,7 +187,7 @@ export default function Hero() {
                   "Visa Assistance",
                 ].map((item) => (
                   <div key={item} className="flex items-center gap-3">
-                    <div className="w-2 h-2 rounded-full bg-blue-500" />
+                    <div className="w-2 h-2 rounded-full bg-[#1A0BF4]" />
                     <span className="text-lg font-medium text-gray-900">
                       {item}
                     </span>
@@ -236,7 +236,7 @@ export default function Hero() {
                   "Career Guidance",
                 ].map((item) => (
                   <div key={item} className="flex items-center gap-3">
-                    <div className="w-2 h-2 rounded-full bg-cyan-500" />
+                    <div className="w-2 h-2 rounded-full bg-[#1A0BF4]" />
                     <span className="text-lg font-medium text-gray-900">
                       {item}
                     </span>

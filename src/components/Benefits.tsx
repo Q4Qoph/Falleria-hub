@@ -32,10 +32,10 @@ const Benefits = () => {
         <div className="grid lg:grid-cols-2 gap-12 items-center">
           {/* Left: Content */}
           <div>
-            <h2 className="text-4xl md:text-4xl font-bold mb-6">
+            <h2 className="text-4xl md:text-4xl font-bold mb-6 ">
               Why Choose
-              <span className="bg-linear-to-r from-primary to-secondary bg-clip-text text-transparent block">
-                FALLERIA Hub International
+              <span className="bg-linear-to-r from-primary to-secondary bg-clip-text text-transparent ml-2">
+               us 
               </span>
             </h2>
 

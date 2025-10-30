@@ -89,7 +89,7 @@ const Contact = () => {
 
         <div className="grid lg:grid-cols-2 gap-12 max-w-6xl mx-auto">
           {/* Contact Form */}
-          <div className="bg-card border border-border rounded-2xl p-8 shadow-sm">
+          <div className="bg-card border border-border rounded-2xl p-8">
             <form onSubmit={handleSubmit} className="space-y-6">
               <div>
                 <Label htmlFor="name">Full Name</Label>
