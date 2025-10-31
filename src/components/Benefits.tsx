@@ -34,7 +34,7 @@ const Benefits = () => {
           <div>
             <h2 className="text-4xl md:text-4xl font-bold mb-6 ">
               Why Choose
-              <span className="bg-linear-to-r from-primary to-secondary bg-clip-text text-transparent ml-2">
+              <span className="bg-linear-to-r from-primary to-tertiary bg-clip-text text-transparent ml-2">
                us 
               </span>
             </h2>

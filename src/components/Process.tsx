@@ -53,7 +53,7 @@ const Process = () => {
           <div>
             <h2 className="text-4xl md:text-5xl font-bold mb-4">
               Simple & Transparent
-              <span className="bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent block">
+              <span className="bg-linear-to-r from-primary to-tertiary bg-clip-text text-transparent block">
                 Application Process
               </span>
             </h2>

@@ -54,13 +54,20 @@ export default function Hero() {
         {/* Content */}
         <div className="container mx-auto px-4 relative z-10 pt-10">
           <div className="max-w-3xl">
-            <h1 className="text-5xl md:text-7xl font-bold mb-6 leading-tight drop-shadow-sm text-white">
-              Your Journey to
-              <span className="text-primary  block">
-                Global Education
-              </span>
-              Starts Here
-            </h1>
+           <h1 className="text-5xl md:text-7xl font-bold mb-6 leading-tight drop-shadow-sm text-white">
+  Your Journey to
+  <span
+    className="block text-transparent bg-clip-text"
+    style={{
+      backgroundImage: "linear-gradient(135deg, #1A0BF4 0%, #00BF48 100%)",
+    }}
+  >
+    Global Education
+  </span>
+  Starts Here
+</h1>
+
+
 
             <p className="text-xl md:text-2xl text-gray-300 mb-8 leading-relaxed drop-shadow-sm">
               Expert guidance for international university admissions. We
@@ -70,7 +77,7 @@ export default function Hero() {
 
             <div className="flex flex-col sm:flex-row gap-4">
               <Link href="/signup">
-                <Button variant="default" size="lg" className="group">
+                <Button size="lg" className=" group">
                   Start Your Application
                   <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
                 </Button>

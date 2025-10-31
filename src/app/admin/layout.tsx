@@ -118,7 +118,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                 className={cn(
                   "flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 hover:bg-gray-100",
                   isActive
-                    ? "bg-[#0BF48E] text-white font-semibold"
+                    ? "bg-primary text-white font-semibold"
                     : "text-gray-800"
                 )}
               >

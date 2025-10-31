@@ -87,7 +87,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
                   "hover:bg-gray-100"
                 )}
                 style={{
-                  backgroundColor: isActive ? "#0BF48E" : "transparent",
+                  backgroundColor: isActive ? "#1A0BF4" : "transparent",
                   color: isActive ? "white" : "#111827",
                   fontWeight: isActive ? 600 : 400,
                 }}
