@@ -43,7 +43,7 @@ export default function Login() {
           <h1 className="text-3xl font-bold text-foreground mb-2">
             Welcome Back
           </h1>
-          <p className="text-secondary">Login to your account</p>
+          <p className="text-sm text-muted-foreground ">Login to your account</p>
         </div>
 
         {error && (
@@ -84,7 +84,7 @@ export default function Login() {
         </form>
 
         <div className="mt-6 space-y-3">
-          <p className="text-center text-secondary">
+          <p className="text-center text-muted-foreground ">
             Don't have an account?{" "}
             <Link
               href="/signup"

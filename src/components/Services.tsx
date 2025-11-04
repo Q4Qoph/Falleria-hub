@@ -54,7 +54,11 @@ const Services = () => {
         <div className="text-center max-w-3xl mx-auto mb-16">
           <h2 className="text-4xl md:text-5xl font-bold mb-4">
             Comprehensive Services for Your
-            <span className="bg-linear-to-r from-primary to-tertiary bg-clip-text text-transparent">
+            <span className="bg-linear-to-r from-primary to-tertiary bg-clip-text text-transparent" 
+             style={{
+                  backgroundImage:
+                    "linear-gradient(135deg,#00BF48 0%, #1A0BF4  100%)",
+                }}>
               {" "}
               Success
             </span>
@@ -69,11 +73,11 @@ const Services = () => {
           {services.map((service, index) => (
             <Card
               key={index}
-              className="border hover:border-primary/50 hover:shadow-lg transition-all duration-200 bg-card"
+              className="border hover:border-[#00BF48] hover:shadow-lg transition-all duration-200 bg-card"
             >
               <CardContent className="p-6">
-                <div className="bg-primary/10 p-3 rounded-lg w-fit mb-4">
-                  <service.icon className="h-6 w-6 text-primary" />
+                <div className="bg-green-50 p-3 rounded-lg w-fit mb-4">
+                  <service.icon className="h-6 w-6 text-[#00BF48]" />
                 </div>
                 <h3 className="text-xl font-bold mb-3">{service.title}</h3>
                 <p className="text-muted-foreground leading-relaxed">

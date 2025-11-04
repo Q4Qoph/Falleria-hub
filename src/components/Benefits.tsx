@@ -34,7 +34,11 @@ const Benefits = () => {
           <div>
             <h2 className="text-4xl md:text-4xl font-bold mb-6 ">
               Why Choose
-              <span className="bg-linear-to-r from-primary to-tertiary bg-clip-text text-transparent ml-2">
+              <span className="bg-linear-to-r from-primary to-tertiary bg-clip-text text-transparent ml-2"
+               style={{
+                  backgroundImage:
+                    "linear-gradient(135deg,#00BF48 0%, #1A0BF4  100%)",
+                }}>
                us 
               </span>
             </h2>
@@ -49,10 +53,10 @@ const Benefits = () => {
               {benefits.map((benefit, index) => (
                 <div
                   key={index}
-                  className="bg-card border border-border hover:border-primary/50 rounded-xl p-6 transition-all duration-200 hover:shadow-md"
+                  className="bg-card border border-border hover:border-[#00BF48] rounded-xl p-6 transition-all duration-200 hover:shadow-md"
                 >
-                  <div className="bg-primary/10 p-3 rounded-lg w-fit mb-4">
-                    <benefit.icon className="h-6 w-6 text-primary" />
+                  <div className="bg-green-50 p-3 rounded-lg w-fit mb-4">
+                    <benefit.icon className="h-6 w-6 text-[#00BF48]" />
                   </div>
                   <h3 className="font-bold text-lg mb-2">{benefit.title}</h3>
                   <p className="text-muted-foreground text-sm">

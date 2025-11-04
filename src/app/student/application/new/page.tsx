@@ -6,6 +6,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import apiClient from "@/lib/axios-client";
 import { useAuth } from "@/context/auth-context";
+import { Button } from "@/components/ui/button";
 
 type FormStep = 1 | 2 | 3 | 4 | 5;
 
@@ -560,10 +561,8 @@ export default function ApplicationForm() {
 
             <div className="bg-neutral-50 p-6 rounded-lg space-y-4">
               <div>
-                <h3 className="font-semibold text-primary mb-2">
-                  Personal Information
-                </h3>
-                <p className="text-sm text-secondary">
+                <h3 className="font-semibold mb-2">Personal Information</h3>
+                <p className="text-sm text-muted-foreground ">
                   Name: {formData.personalInfo.fullName}
                   <br />
                   DOB: {formData.personalInfo.dateOfBirth}
@@ -573,10 +572,8 @@ export default function ApplicationForm() {
               </div>
 
               <div className="border-t pt-4">
-                <h3 className="font-semibold text-primary mb-2">
-                  Academic History
-                </h3>
-                <p className="text-sm text-secondary">
+                <h3 className="font-semibold mb-2">Academic History</h3>
+                <p className="text-sm text-muted-foreground ">
                   High School: {formData.academicHistory.highSchool.schoolName}
                   <br />
                   GPA: {formData.academicHistory.highSchool.gpa}
@@ -584,10 +581,8 @@ export default function ApplicationForm() {
               </div>
 
               <div className="border-t pt-4">
-                <h3 className="font-semibold text-primary mb-2">
-                  Course Preferences
-                </h3>
-                <p className="text-sm text-secondary">
+                <h3 className="font-semibold mb-2">Course Preferences</h3>
+                <p className="text-sm text-muted-foreground ">
                   Field: {formData.coursePreferences.fieldOfStudy}
                   <br />
                   Country: {formData.coursePreferences.preferredCountry}
@@ -601,8 +596,8 @@ export default function ApplicationForm() {
               </div>
 
               <div className="border-t pt-4">
-                <h3 className="font-semibold text-primary mb-2">Documents</h3>
-                <p className="text-sm text-secondary">
+                <h3 className="font-semibold mb-2">Documents</h3>
+                <p className="text-sm text-muted-foreground a">
                   {Object.values(formData.documents).filter((d) => d).length} of
                   5 documents uploaded
                 </p>
@@ -631,7 +626,7 @@ export default function ApplicationForm() {
               />
             ))}
           </div>
-          <p className="text-center text-secondary text-sm">
+          <p className="text-center text-sm text-muted-foreground">
             Step {currentStep} of 5
           </p>
         </div>
@@ -649,7 +644,8 @@ export default function ApplicationForm() {
 
         {/* Navigation Buttons */}
         <div className="flex gap-4">
-          <button
+          <Button
+            variant="outline"
             onClick={() =>
               setCurrentStep((prev) => Math.max(1, prev - 1) as FormStep)
             }
@@ -657,25 +653,25 @@ export default function ApplicationForm() {
             className="flex-1 px-6 py-3 border border-border rounded-lg font-semibold hover:bg-neutral-50 disabled:opacity-50 transition"
           >
             Previous
-          </button>
+          </Button>
 
           {currentStep < 5 ? (
-            <button
+            <Button
               onClick={() =>
                 setCurrentStep((prev) => Math.min(5, prev + 1) as FormStep)
               }
               className="flex-1 btn-primary"
             >
               Next
-            </button>
+            </Button>
           ) : (
-            <button
+            <Button
               onClick={handleSubmit}
               disabled={loading}
               className="flex-1 btn-primary disabled:opacity-50"
             >
               {loading ? "Submitting..." : "Submit Application"}
-            </button>
+            </Button>
           )}
         </div>
       </div>

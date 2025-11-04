@@ -1,27 +1,47 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  ArrowLeft,
+  Mail,
+  Phone,
+  MapPin,
+  Calendar,
+  Globe,
+  BookOpen,
+  GraduationCap,
+  Upload,
+  ArrowDownToLine,
+  CheckCircle2,
+  Circle,
+  AlertCircle,
+  Clock,
+} from "lucide-react";
+import Link from "next/link";
 import { useParams } from "next/navigation";
 import apiClient from "@/lib/axios-client";
-import Link from "next/link";
-import { Button } from "@/components/ui/button";
-import { Check, CheckCircle } from "lucide-react";
+import { useState } from "react";
+import { format } from "date-fns";
+import StatusTimeline from "@/app/student/application/(components)/StatusTimeline";
 
-interface ApplicationDetail {
-  id: number;
-  studentName: string;
-  email: string;
-  status: string;
-  submissionDate: string;
-  personalInfo: any;
-  academicHistory: any;
-  coursePreferences: any;
-  documents: any[];
-  adminNotes: string | null;
-}
+const fetchApplicationDetails = async (id: string) => {
+  const { data } = await apiClient.get(`/applications/${id}`);
+  return data;
+};
 
 const statuses = [
-  "Awaiting Payment",
+  // "Awaiting Payment",
   "Processing",
   "Under Review",
   "Additional Documents Required",
@@ -32,318 +52,385 @@ const statuses = [
   "Completed / Closed",
 ];
 
-export default function ApplicationDetail() {
+// Reusable Status Badge Color
+const getStatusColor = (status: string) => {
+  const colors: Record<string, string> = {
+    "Awaiting Payment": "bg-yellow-500 text-white",
+    Processing: "bg-primary text-white",
+    "Under Review": "bg-blue-500 text-white",
+    "Additional Documents Required": "bg-orange-500 text-white",
+    "Submitted to  to Institution": "bg-indigo-500 text-white",
+    "Awaiting Institution Decision": "bg-cyan-500 text-white",
+    "Offer Received": "bg-green-500 text-white",
+    "Application Unsuccessful": "bg-red-500 text-white",
+    "Completed / Closed": "bg-gray-500 text-white",
+  };
+  return colors[status] || "bg-gray-300 text-gray-800";
+};
+
+export default function AdminApplicationDetails() {
   const params = useParams();
-  const applicationId = params.id as string;
-  const [application, setApplication] = useState<ApplicationDetail | null>(
-    null
-  );
-  const [loading, setLoading] = useState(true);
-  const [updating, setUpdating] = useState(false);
+  const id = params.id as string;
+  const queryClient = useQueryClient();
+
   const [newStatus, setNewStatus] = useState("");
-  const [notes, setNotes] = useState("");
+  const [notes, setNotes] = useState(""); // Not preloaded
+  const [uploading, setUploading] = useState(false);
+  const [file, setFile] = useState<File | null>(null);
 
-  useEffect(() => {
-    const fetchApplication = async () => {
-      try {
-        const response = await apiClient.get(`/applications/${applicationId}`);
-        const app = response.data;
+  const {
+    data: app,
+    isLoading,
+    isError,
+  } = useQuery({
+    queryKey: ["admin-application", id],
+    queryFn: () => fetchApplicationDetails(id),
+  });
 
-        // ✅ Map structure to your component’s expected shape
-        const mapped: ApplicationDetail = {
-          id: app.applicationId,
-          studentName: app.personalInfo?.fullName || "N/A",
-          email: app.user?.email || "N/A",
-          status: app.status,
-          submissionDate: app.submissionDate,
-          personalInfo: app.personalInfo,
-          academicHistory: app.academicHistory,
-          coursePreferences: app.coursePreferences,
-          documents: app.documents || [],
-          adminNotes: app.adminNotes,
-        };
-
-        setApplication(mapped);
-        setNewStatus(app.status);
-        setNotes(app.adminNotes || "");
-      } catch (error) {
-        console.error("Error fetching application:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchApplication();
-  }, [applicationId]);
-
-  const handleStatusUpdate = async () => {
-    setUpdating(true);
-    try {
-      await apiClient.patch(`/applications/${applicationId}/status`, {
+  const updateMutation = useMutation({
+    mutationFn: async () => {
+      return apiClient.patch(`/applications/${id}/status`, {
         status: newStatus,
         adminNotes: notes,
       });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin-application", id] });
+      setNotes(""); // Clear after submit
+    },
+  });
 
-      setApplication((prev) =>
-        prev ? { ...prev, status: newStatus, adminNotes: notes } : null
-      );
+  const uploadMutation = useMutation({
+    mutationFn: async (formData: FormData) => {
+      return apiClient.post(`/documents/${id}/upload`, formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin-application", id] });
+      setFile(null);
+    },
+  });
 
-      alert("Application updated successfully!");
-    } catch (error) {
-      console.error("Error updating application:", error);
-      alert("Failed to update application");
-    } finally {
-      setUpdating(false);
+  const handleStatusUpdate = async () => {
+    if (!newStatus || newStatus === app?.status) return;
+    try {
+      await updateMutation.mutateAsync();
+      alert("Status updated successfully!");
+    } catch (err) {
+      alert("Failed to update status.");
     }
   };
 
-  if (loading) {
-    return (
-      <div className="p-8 flex items-center justify-center min-h-screen">
-        <div className="text-center">
-          <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-          <p className="text-secondary">Loading application...</p>
-        </div>
-      </div>
-    );
+  // Set initial status once data loads
+  if (app && !newStatus) {
+    setNewStatus(app.status);
   }
 
-  if (!application) {
-    return (
-      <div className="p-8">
-        <p className="text-secondary mb-4">Application not found</p>
-        <Link href="/admin/applications" className="btn-primary inline-block">
-          Back to Applications
-        </Link>
-      </div>
-    );
-  }
+  if (isLoading) return <div className="p-8 text-center">Loading...</div>;
+  if (isError || !app)
+    return <div className="p-8 text-center text-red-500">Failed to load.</div>;
+
+  const personalInfo = app.personalInfo || {};
+  const academicHistory = app.academicHistory || {};
+  const coursePreferences = app.coursePreferences || {};
+  const hasHistory = app.statusHistory?.length > 0;
 
   return (
-    <div className="p-8">
-      <Link
-        href="/admin/applications"
-        className="text-primary hover:underline mb-6 inline-block"
-      >
-        ← Back to Applications
-      </Link>
+    <div className="">
+      {/* Header */}
+      <div className="flex items-center justify-between mb-6">
+        <Link href="/admin/applications">
+          <Button variant="ghost" className="gap-2">
+            <ArrowLeft className="w-4 h-4" />
+            Back
+          </Button>
+        </Link>
+        <Badge className={`text-lg px-4 py-2 ${getStatusColor(app.status)}`}>
+          {app.status}
+        </Badge>
+      </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* MAIN CONTENT */}
-        <div className="lg:col-span-2 space-y-6">
-          {/* Header */}
-          <div className="bg-white rounded-lg shadow border border-border p-6">
-            <div className="flex items-start justify-between mb-4">
-              <div>
-                <h1 className="text-3xl font-bold mb-2">
-                  {application.studentName}
-                </h1>
-                <p className="text-sm text-muted-foreground">
-                  {application.email}
-                </p>
-              </div>
-              <span className="px-4 py-2 bg-blue-100 text-blue-800 rounded-full font-semibold">
-                {application.status}
-              </span>
-            </div>
-            <p className="text-sm text-muted-foreground">
-              Submitted:{" "}
-              {new Date(application.submissionDate).toLocaleDateString()}
-            </p>
-          </div>
+      {/* Two-Column Layout */}
+      <div className="grid lg:grid-cols-3 gap-6">
+        {/* LEFT: Timeline + Actions */}
+        <div className="lg:col-span-1 space-y-6">
+          {/* Status Timeline */}
+          <StatusTimeline
+            history={app.statusHistory}
+            currentStatus={app.status}
+          />
 
-          {/* Personal Info */}
-          <div className="bg-white rounded-lg shadow border border-border p-6">
-            <h2 className="text-2xl font-bold mb-4">
-              Personal Information
-            </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <p className="text-sm text-muted-foreground">Full Name</p>
-                <p className="font-semibold">
-                  {application.personalInfo?.fullName}
-                </p>
-              </div>
-              <div>
-                <p className="text-sm text-muted-foreground">Date of Birth</p>
-                <p className="font-semibold">
-                  {application.personalInfo?.dateOfBirth}
-                </p>
-              </div>
-              <div>
-                <p className="text-sm text-muted-foreground">Nationality</p>
-                <p className="font-semibold">
-                  {application.personalInfo?.nationality}
-                </p>
-              </div>
-              <div>
-                <p className="text-sm text-muted-foreground">Passport Number</p>
-                <p className="font-semibold">
-                  {application.personalInfo?.passportNumber}
-                </p>
-              </div>
-              <div>
-                <p className="text-sm text-muted-foreground">Phone</p>
-                <p className="font-semibold">
-                  {application.personalInfo?.phone}
-                </p>
-              </div>
-              <div>
-                <p className="text-sm text-muted-foreground">Address</p>
-                <p className="font-semibold">
-                  {application.personalInfo?.currentAddress}
-                </p>
-              </div>
-            </div>
-          </div>
-
-          {/* Academic History */}
-          <div className="bg-white rounded-lg shadow border border-border p-6">
-            <h2 className="text-2xl font-bold mb-4">
-              Academic History
-            </h2>
-
-            <div className="space-y-4">
-              {application.academicHistory?.highSchool && (
-                <div>
-                  <h3 className="font-semibold mb-2">High School</h3>
-                  <p className="text-sm text-secondary">
-                    {application.academicHistory.highSchool.schoolName} (
-                    {application.academicHistory.highSchool.country}) — GPA:{" "}
-                    {application.academicHistory.highSchool.gpa}
-                  </p>
-                </div>
-              )}
-
-              {Array.isArray(application.academicHistory?.higherEducation) &&
-                application.academicHistory.higherEducation.map(
-                  (edu: any, i: number) => (
-                    <div key={i}>
-                      <h3 className="font-semibold mb-2">Higher Education</h3>
-                      <p className="text-sm text-secondary">
-                        {edu.degree} from {edu.universityName} (Graduated{" "}
-                        {edu.graduationYear}) — GPA: {edu.gpa}
-                      </p>
-                    </div>
-                  )
-                )}
-            </div>
-          </div>
-
-          {/* Course Preferences */}
-          <div className="bg-white rounded-lg shadow border border-border p-6">
-            <h2 className="text-2xl font-bold mb-4">
-              Course Preferences
-            </h2>
-            <div className="space-y-2">
-              <p>
-                <span className="font-semibold">Field of Study:</span>{" "}
-                {application.coursePreferences?.fieldOfStudy}
-              </p>
-              <p>
-                <span className="font-semibold">Preferred Country:</span>{" "}
-                {application.coursePreferences?.preferredCountry}
-              </p>
-              <p>
-                <span className="font-semibold">Preferred Universities:</span>{" "}
-                {application.coursePreferences?.preferredUniversities
-                  ?.map((u: any) => `${u.universityName} (${u.courseName})`)
-                  .join(", ")}
-              </p>
-              <p>
-                <span className="font-semibold">Intended Start Date:</span>{" "}
-                {new Date(
-                  application.coursePreferences?.intendedStartDate
-                ).toLocaleDateString()}
-              </p>
-            </div>
-          </div>
-
-          {/* Documents */}
-          <div className="bg-white rounded-lg shadow border border-border p-6">
-            <h2 className="text-2xl font-bold mb-4">Documents</h2>
-            {application.documents?.length > 0 ? (
-              <div className="space-y-2">
-                {application.documents.map((doc, idx) => (
-                  <div
-                    key={idx}
-                    className="flex items-center justify-between p-3 bg-neutral-50 rounded-lg"
-                  >
-                    <span className="font-semibold capitalize">
-                      {doc.documentType}
-                    </span>
-                    <a
-                      href={doc.fileUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-primary hover:underline"
-                    >
-                      Download
-                    </a>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <p className="text-sm text-muted-foreground">No documents uploaded</p>
-            )}
-          </div>
-        </div>
-
-        {/* SIDEBAR - Status Update */}
-        <div className="space-y-6">
-          <div className="bg-white rounded-lg shadow border border-border p-6 sticky top-8">
-            <h3 className="text-xl font-bold mb-4">Update Status</h3>
-
+          {/* Admin Status Update */}
+          <Card className="p-5">
+            <h3 className="font-semibold text-lg mb-4">Update Status</h3>
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-semibold mb-2">
-                  New Status
-                </label>
-                <select
-                  value={newStatus}
-                  onChange={(e) => setNewStatus(e.target.value)}
-                  className="w-full px-4 py-3 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
-                >
-                  {statuses.map((status) => (
-                    <option key={status} value={status}>
-                      {status}
-                    </option>
-                  ))}
-                </select>
+                <label className="text-sm font-medium">New Status</label>
+                <Select value={newStatus} onValueChange={setNewStatus}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {statuses.map((status) => (
+                      <SelectItem key={status} value={status}>
+                        {status}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
 
               <div>
-                <label className="block text-sm font-semibold mb-2">
-                  Admin Notes
-                </label>
-                <textarea
+                <label className="text-sm font-medium">Notes</label>
+                <Textarea
                   value={notes}
                   onChange={(e) => setNotes(e.target.value)}
-                  placeholder="Add internal notes about this application..."
-                  rows={6}
-                  className="w-full px-4 py-3 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                  placeholder="Add  notes..."
+                  rows={4}
+                  className="resize-none"
                 />
               </div>
 
               <Button
                 onClick={handleStatusUpdate}
-                disabled={updating}
-                className="w-full bg-primary disabled:bg-primary-50"
+                disabled={updateMutation.isPending || newStatus === app.status}
+                className="w-full"
               >
-                {updating ? "Updating..." : "Update Application"}
+                {updateMutation.isPending ? "Updating..." : "Update Status"}
               </Button>
             </div>
+          </Card>
+        </div>
 
-            {application.adminNotes && (
-              <div className="mt-6 pt-6 border-t border-border">
-                <h4 className="font-semibold mb-2">Current Notes</h4>
-                <p className="flex items-center gap-2 text-sm text-[#0BF48E] bg-green-50 p-3 rounded-lg">
-                  <CheckCircle className="text-sm"/>
-                  {application.adminNotes}
+        {/* RIGHT: Application Details */}
+        <div className="lg:col-span-2 space-y-6">
+          {/* Personal Info */}
+          <Card className="p-6">
+            <h3 className="text-xl font-bold mb-4">Personal Information</h3>
+            <div className="grid sm:grid-cols-2 gap-6">
+              <div>
+                <p className="text-sm text-muted-foreground">Full Name</p>
+                <p className="font-semibold">{personalInfo.fullName}</p>
+              </div>
+              <div>
+                <p className="text-sm text-muted-foreground">Date of Birth</p>
+                <p className="font-semibold">
+                  {personalInfo.dateOfBirth
+                    ? new Date(personalInfo.dateOfBirth).toLocaleDateString()
+                    : "N/A"}
                 </p>
               </div>
+              <div>
+                <p className="text-sm text-muted-foreground">Nationality</p>
+                <p className="font-semibold">{personalInfo.nationality}</p>
+              </div>
+              <div>
+                <p className="text-sm text-muted-foreground">Passport</p>
+                <p className="font-mono">{personalInfo.passportNumber}</p>
+              </div>
+            </div>
+          </Card>
+
+          {/* Contact */}
+          <Card className="p-6">
+            <h3 className="text-xl font-bold mb-4">Contact</h3>
+            <div className="grid sm:grid-cols-2 gap-6">
+              <div className="flex items-center gap-3">
+                <Mail className="w-5 h-5 text-primary" />
+                <div>
+                  <p className="text-sm text-muted-foreground">Email</p>
+                  <p className="font-medium">{app.user?.email || "N/A"}</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-3">
+                <Phone className="w-5 h-5 text-primary" />
+                <div>
+                  <p className="text-sm text-muted-foreground">Phone</p>
+                  <p className="font-medium">{personalInfo.phone || "N/A"}</p>
+                </div>
+              </div>
+              <div className="flex items-start gap-3 sm:col-span-2">
+                <MapPin className="w-5 h-5 text-primary mt-0.5" />
+                <div>
+                  <p className="text-sm text-muted-foreground">Address</p>
+                  <p className="font-medium whitespace-pre-line">
+                    {personalInfo.currentAddress || "N/A"}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </Card>
+
+          {/* Course Preferences */}
+          <Card className="p-6">
+            <h3 className="text-xl font-bold mb-4">Course Preferences</h3>
+            <div className="grid sm:grid-cols-2 gap-6 mb-6">
+              <div className="flex items-center gap-2">
+                <BookOpen className="w-5 h-5 text-primary" />
+                <div>
+                  <p className="text-sm text-muted-foreground">Field</p>
+                  <p className="font-medium">
+                    {coursePreferences.fieldOfStudy}
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <Globe className="w-5 h-5 text-primary" />
+                <div>
+                  <p className="text-sm text-muted-foreground">Country</p>
+                  <p className="font-medium">
+                    {coursePreferences.preferredCountry}
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-center gap-2 sm:col-span-2">
+                <Calendar className="w-5 h-5 text-primary" />
+                <div>
+                  <p className="text-sm text-muted-foreground">Start Date</p>
+                  <p className="font-medium">
+                    {coursePreferences.intendedStartDate
+                      ? new Date(
+                          coursePreferences.intendedStartDate
+                        ).toLocaleDateString()
+                      : "N/A"}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <h4 className="font-semibold mb-3 flex items-center gap-2">
+              <GraduationCap className="w-5 h-5" />
+              Preferred Universities
+            </h4>
+            <div className="grid gap-3">
+              {coursePreferences.preferredUniversities?.length > 0 ? (
+                coursePreferences.preferredUniversities.map(
+                  (uni: any, i: number) => (
+                    <div key={i} className="p-3 bg-muted rounded-lg">
+                      <p className="font-medium">{uni.universityName}</p>
+                      <p className="text-sm text-muted-foreground">
+                        {uni.courseName}
+                      </p>
+                    </div>
+                  )
+                )
+              ) : (
+                <p className="text-muted-foreground">None selected</p>
+              )}
+            </div>
+          </Card>
+
+          {/* Academic History */}
+          <Card className="p-6">
+            <h3 className="text-xl font-bold mb-4">Academic History</h3>
+            {academicHistory.highSchool?.schoolName ? (
+              <div>
+                <p className="font-semibold">
+                  {academicHistory.highSchool.schoolName}
+                </p>
+                <p className="text-sm text-muted-foreground">
+                  {academicHistory.highSchool.country} • Graduated{" "}
+                  {academicHistory.highSchool.graduationYear}
+                </p>
+              </div>
+            ) : (
+              <p className="text-muted-foreground">No history provided</p>
             )}
-          </div>
+          </Card>
+
+          {/* Application Meta */}
+          <Card className="p-6 bg-muted/30">
+            <h3 className="text-xl font-bold mb-4">Application Info</h3>
+            <div className="grid sm:grid-cols-3 gap-4 text-sm">
+              <div>
+                <p className="text-muted-foreground">ID</p>
+                <p className="font-mono font-semibold">{app.applicationId}</p>
+              </div>
+              <div>
+                <p className="text-muted-foreground">Submitted</p>
+                <p>{new Date(app.submissionDate).toLocaleDateString()}</p>
+              </div>
+              <div>
+                <p className="text-muted-foreground">Updated</p>
+                <p>{new Date(app.updatedAt).toLocaleDateString()}</p>
+              </div>
+            </div>
+          </Card>
+
+          {/* Uploaded Documents - Viewable */}
+          {app.documents?.length > 0 && (
+            <Card className="p-6">
+              <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
+                <Upload className="w-5 h-5 text-primary" />
+                Uploaded Documents
+              </h3>
+              <div className="space-y-3">
+                {app.documents.map((doc: any) => (
+                  <div
+                    key={doc.documentId}
+                    className="flex items-center justify-between p-3 bg-muted/50 rounded-lg hover:bg-muted transition-colors"
+                  >
+                    <div className="flex items-center gap-3">
+                      {/* Image Preview */}
+                      {doc.mimeType.startsWith("image/") ? (
+                        <a
+                          href={doc.fileUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          <img
+                            src={doc.fileUrl}
+                            alt={doc.fileName}
+                            className="w-12 h-12 object-cover rounded border cursor-pointer hover:opacity-80"
+                          />
+                        </a>
+                      ) : doc.mimeType === "application/pdf" ? (
+                        <a
+                          href={doc.fileUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          <div className="w-12 h-12 bg-red-100 border-2 border-dashed rounded flex items-center justify-center">
+                            <span className="text-xs font-bold text-red-600">
+                              PDF
+                            </span>
+                          </div>
+                        </a>
+                      ) : (
+                        <div className="w-12 h-12 bg-gray-200 border-2 border-dashed rounded flex items-center justify-center">
+                          <Upload className="w-5 h-5 text-gray-500" />
+                        </div>
+                      )}
+
+                      <div>
+                        <p className="font-medium text-sm">{doc.fileName}</p>
+                        <p className="text-xs text-muted-foreground">
+                          {format(
+                            new Date(doc.createdAt),
+                            "MMM d, yyyy 'at' h:mm a"
+                          )}
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Open in New Tab */}
+                    <Button variant="outline" size="sm" asChild>
+                      <a
+                        href={doc.fileUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-1"
+                      >
+                        <ArrowDownToLine className="w-4 h-4" />
+                        Open
+                      </a>
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            </Card>
+          )}
         </div>
       </div>
     </div>

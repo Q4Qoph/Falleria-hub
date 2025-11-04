@@ -15,15 +15,53 @@ import {
   GraduationCap,
   Info,
   Upload,
+  ArrowRight,
+  Circle,
+  CheckCircle2,
+  Clock,
+  AlertCircle,
+  ArrowDownToLine,
 } from "lucide-react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import apiClient from "@/lib/axios-client";
 import { useState } from "react";
+import { format } from "date-fns";
+import StatusTimeline from "../(components)/StatusTimeline";
 
 const fetchApplicationDetails = async (id: string) => {
   const { data } = await apiClient.get(`/applications/${id}`);
   return data;
+};
+
+// Reusable Status Badge Color
+const getStatusColor = (status: string) => {
+  const colors: Record<string, string> = {
+    Accepted: "bg-green-500 text-white",
+    "Awaiting Payment": "bg-yellow-500 text-white",
+    "In Review": "bg-blue-500 text-white",
+    Submitted: "bg-indigo-500 text-white",
+    "Additional Documents Required": "bg-orange-500 text-white",
+    Processing: "bg-primary text-white",
+    Rejected: "bg-red-500 text-white",
+  };
+  return colors[status] || "bg-gray-300 text-gray-800";
+};
+
+// Status Icon
+const getStatusIcon = (status: string, isCurrent: boolean) => {
+  const cls = "w-3.5 h-3.5";
+  if (isCurrent) return <Circle className={`${cls} fill-current`} />;
+  switch (status) {
+    case "Accepted":
+      return <CheckCircle2 className={cls} />;
+    case "Additional Documents Required":
+      return <AlertCircle className={cls} />;
+    case "Awaiting Payment":
+      return <Clock className={cls} />;
+    default:
+      return <Circle className={cls} />;
+  }
 };
 
 export default function ApplicationDetails() {
@@ -56,62 +94,54 @@ export default function ApplicationDetails() {
 
   const handleUpload = async () => {
     if (!file) return alert("Please select a document to upload.");
+    setUploading(true);
+    const formData = new FormData();
+    formData.append("file", file);
     try {
-      setUploading(true);
-      const formData = new FormData();
-      formData.append("file", file);
       await uploadMutation.mutateAsync(formData);
       alert("Document uploaded successfully!");
     } catch (err) {
-      console.error(err);
       alert("Failed to upload document.");
     } finally {
       setUploading(false);
     }
   };
 
-  if (isLoading) {
-    return (
-      <div className="p-8 text-center">Loading application details...</div>
-    );
-  }
+  const checkoutMutation = useMutation({
+    mutationFn: async () => {
+      const checkoutResponse = await apiClient.post("/payments/checkout", {
+        appId: app.applicationId,
+      });
+      if (!checkoutResponse.data.url) {
+        throw new Error("No checkout URL received");
+      }
+      return checkoutResponse.data.url;
+    },
+    onSuccess: (url) => {
+      window.location.href = url;
+    },
+    onError: (err: any) => {
+      alert(err?.message ?? "Failed to start payment");
+    },
+  });
 
-  if (isError || !app) {
-    return (
-      <div className="p-8 text-center text-red-500">
-        Failed to load application details.
-      </div>
-    );
-  }
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "Accepted":
-        return "bg-green-500 text-white";
-      case "Awaiting Payment":
-        return "bg-yellow-500 text-white";
-      case "In Review":
-        return "bg-blue-500 text-white";
-      case "Submitted":
-        return "bg-indigo-500 text-white";
-      case "Additional Documents Required":
-        return "bg-orange-500 text-white";
-      default:
-        return "bg-gray-300 text-gray-800";
-    }
-  };
+  if (isLoading) return <div className="p-8 text-center">Loading...</div>;
+  if (isError || !app)
+    return <div className="p-8 text-center text-red-500">Failed to load.</div>;
 
   const personalInfo = app.personalInfo || {};
   const academicHistory = app.academicHistory || {};
   const coursePreferences = app.coursePreferences || {};
+  const hasHistory = app.statusHistory?.length > 0;
 
   return (
-    <div className="space-y-8">
-      <div className="flex items-center justify-between">
+    <div className="">
+      {/* Header */}
+      <div className="flex items-center justify-between mb-6">
         <Link href="/student/application">
-          <Button variant="ghost" className="cursor-pointer gap-2">
+          <Button variant="ghost" className="gap-2">
             <ArrowLeft className="w-4 h-4" />
-            Back to Applications
+            Back
           </Button>
         </Link>
         <Badge className={`text-lg px-4 py-2 ${getStatusColor(app.status)}`}>
@@ -119,235 +149,280 @@ export default function ApplicationDetails() {
         </Badge>
       </div>
 
-      {/* ✅ Admin Notes section */}
-      {app.adminNotes && (
-        <Card className="p-4 bg-blue-50 border border-blue-200 rounded-md flex gap-3 items-start">
-          <Info className="w-5 h-5 text-blue-600 mt-0.5" />
-          <div>
-            <p className="font-semibold text-blue-800">Admin Notes</p>
-            <p className="text-blue-700 text-sm whitespace-pre-line">
-              {app.adminNotes}
-            </p>
-          </div>
-        </Card>
-      )}
+      {/* Two-Column Layout */}
+      <div className="grid lg:grid-cols-3 gap-6">
+        <div className="lg:col-span-1 space-y-6">
+          <StatusTimeline
+            history={app.statusHistory}
+            currentStatus={app.status}
+          />
 
-      {/* ✅ Upload documents if status = "Additional Documents Required" */}
-      {app.status === "Additional Documents Required" && (
-        <Card className="p-6 border border-dashed border-orange-300 bg-orange-50">
-          <h3 className="text-lg font-semibold mb-3 text-orange-700 flex items-center gap-2">
-            <Upload className="w-5 h-5" /> Upload Additional Documents
-          </h3>
-          <div className="flex items-center gap-3">
-            <input
-              type="file"
-              onChange={(e) => setFile(e.target.files?.[0] || null)}
-              className="block w-full border border-border rounded-lg p-2 text-sm bg-white"
-            />
-            <Button
-              onClick={handleUpload}
-              disabled={uploading || !file}
-              className="bg-orange-600 hover:bg-orange-700"
-            >
-              {uploading ? "Uploading..." : "Upload"}
-            </Button>
-          </div>
-          <p className="text-sm text-orange-700 mt-2">
-            Please upload the missing or corrected documents as requested by the
-            admin.
-          </p>
-        </Card>
-      )}
-
-      <Card className="p-8 rounded-sm shadow-none">
-        <div className="grid md:grid-cols-3 gap-6">
-          <div>
-            <p className="text-sm text-muted-foreground mb-1">Full Name</p>
-            <p className="text-lg font-semibold">{personalInfo.fullName}</p>
-          </div>
-          <div>
-            <p className="text-sm text-muted-foreground mb-1">Date of Birth</p>
-            <p className="text-lg font-semibold">
-              {personalInfo.dateOfBirth
-                ? new Date(personalInfo.dateOfBirth).toLocaleDateString()
-                : "N/A"}
-            </p>
-          </div>
-          <div>
-            <p className="text-sm text-muted-foreground mb-1">Nationality</p>
-            <p className="text-lg font-semibold">{personalInfo.nationality}</p>
-          </div>
-        </div>
-      </Card>
-
-      <Card className="p-6 rounded-sm shadow-none">
-        <h3 className="text-xl font-bold mb-4">Contact Information</h3>
-        <div className="grid md:grid-cols-2 gap-6">
-          <div className="flex items-center gap-3">
-            <Mail className="w-5 h-5 text-primary" />
-            <div>
-              <p className="text-sm text-muted-foreground">Email</p>
-              <p className="font-medium">
-                {personalInfo.email || "Not provided"}
+          {/* Upload Section */}
+          {app.status === "Additional Documents Required" && (
+            <Card className="p-5 border border-dashed border-orange-300 bg-orange-50">
+              <h3 className="font-semibold text-orange-700 flex items-center gap-2 mb-3">
+                <Upload className="w-5 h-5" />
+                Upload Documents
+              </h3>
+              <div className="flex gap-2">
+                <input
+                  type="file"
+                  onChange={(e) => setFile(e.target.files?.[0] || null)}
+                  className="flex-1 text-sm border rounded-lg p-2 bg-white"
+                />
+                <Button
+                  onClick={handleUpload}
+                  disabled={uploading || !file}
+                  className="bg-orange-600 hover:bg-orange-700 text-white"
+                >
+                  {uploading ? "Uploading..." : "Upload"}
+                </Button>
+              </div>
+              <p className="text-xs text-orange-700 mt-2">
+                Upload missing or corrected documents.
               </p>
-            </div>
-          </div>
-          <div className="flex items-center gap-3">
-            <Phone className="w-5 h-5 text-primary" />
-            <div>
-              <p className="text-sm text-muted-foreground">Phone</p>
-              <p className="font-medium">
-                {personalInfo.phone || "Not provided"}
+            </Card>
+          )}
+          {app.status === "Awaiting Payment" && (
+            <Card className="p-5 border border-dashed border-yellow-300 bg-yellow-50">
+              <h3 className="font-semibold text-yellow-700 flex items-center gap-2 mb-3">
+                <Clock className="w-5 h-5" />
+                Payment Required
+              </h3>
+              <p className="text-sm text-yellow-700 mb-3">
+                Your application is awaiting payment to proceed.
               </p>
-            </div>
-          </div>
-          <div className="flex items-start gap-3 md:col-span-2">
-            <MapPin className="w-5 h-5 text-primary mt-1" />
-            <div>
-              <p className="text-sm text-muted-foreground">Current Address</p>
-              <p className="font-medium">
-                {personalInfo.currentAddress || "Not provided"}
-              </p>
-            </div>
-          </div>
-        </div>
-      </Card>
-
-      <Card className="p-6 rounded- shadow-none">
-        <h3 className="text-xl font-bold mb-4">Course Preferences</h3>
-        <div className="grid md:grid-cols-2 gap-6 mb-6">
-          <div>
-            <p className="text-sm text-muted-foreground mb-2">Field of Study</p>
-            <div className="flex items-center gap-2">
-              <BookOpen className="w-5 h-5 text-primary" />
-              <span className="font-medium">
-                {coursePreferences.fieldOfStudy}
-              </span>
-            </div>
-          </div>
-          <div>
-            <p className="text-sm text-muted-foreground mb-2">
-              Preferred Country
-            </p>
-            <div className="flex items-center gap-2">
-              <Globe className="w-5 h-5 text-primary" />
-              <span className="font-medium">
-                {coursePreferences.preferredCountry}
-              </span>
-            </div>
-          </div>
-          <div className="md:col-span-2">
-            <p className="text-sm text-muted-foreground mb-2">
-              Intended Start Date
-            </p>
-            <div className="flex items-center gap-2">
-              <Calendar className="w-5 h-5 text-primary" />
-              <span className="font-medium">
-                {coursePreferences.intendedStartDate
-                  ? new Date(
-                      coursePreferences.intendedStartDate
-                    ).toLocaleDateString()
-                  : "Not specified"}
-              </span>
-            </div>
-          </div>
+              <Button
+                onClick={() => checkoutMutation.mutate()}
+                disabled={checkoutMutation.isPending}
+                className="bg-yellow-600 hover:bg-yellow-700 text-white"
+              >
+                {checkoutMutation.isPending ? "Preparing…" : "Pay Now"}
+              </Button>
+            </Card>
+          )}
         </div>
 
-        <div className="mt-6">
-          <h4 className="font-semibold mb-3 flex items-center gap-2">
-            <GraduationCap className="w-5 h-5" />
-            Selected Universities
-          </h4>
-          <div className="space-y-3">
-            {coursePreferences.preferredUniversities?.length > 0 ? (
-              coursePreferences.preferredUniversities.map(
-                (uni: any, idx: number) => (
-                  <div key={idx} className="p-4 bg-muted rounded-lg">
-                    <p className="font-semibold">{uni.universityName}</p>
-                    <p className="text-sm text-muted-foreground">
-                      {uni.courseName}
-                    </p>
-                  </div>
+        {/* RIGHT: Application Details */}
+        <div className="lg:col-span-2 space-y-6">
+          {/* Personal Info */}
+          <Card className="p-6">
+            <h3 className="text-xl font-bold mb-4">Personal Information</h3>
+            <div className="grid sm:grid-cols-2 gap-6">
+              <div>
+                <p className="text-sm text-muted-foreground">Full Name</p>
+                <p className="font-semibold">{personalInfo.fullName}</p>
+              </div>
+              <div>
+                <p className="text-sm text-muted-foreground">Date of Birth</p>
+                <p className="font-semibold">
+                  {personalInfo.dateOfBirth
+                    ? new Date(personalInfo.dateOfBirth).toLocaleDateString()
+                    : "N/A"}
+                </p>
+              </div>
+              <div>
+                <p className="text-sm text-muted-foreground">Nationality</p>
+                <p className="font-semibold">{personalInfo.nationality}</p>
+              </div>
+              <div>
+                <p className="text-sm text-muted-foreground">Passport</p>
+                <p className="font-mono">{personalInfo.passportNumber}</p>
+              </div>
+            </div>
+          </Card>
+
+          {/* Contact */}
+          <Card className="p-6">
+            <h3 className="text-xl font-bold mb-4">Contact</h3>
+            <div className="grid sm:grid-cols-2 gap-6">
+              <div className="flex items-center gap-3">
+                <Mail className="w-5 h-5 text-primary" />
+                <div>
+                  <p className="text-sm text-muted-foreground">Email</p>
+                  <p className="font-medium">{app.user?.email || "N/A"}</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-3">
+                <Phone className="w-5 h-5 text-primary" />
+                <div>
+                  <p className="text-sm text-muted-foreground">Phone</p>
+                  <p className="font-medium">{personalInfo.phone || "N/A"}</p>
+                </div>
+              </div>
+              <div className="flex items-start gap-3 sm:col-span-2">
+                <MapPin className="w-5 h-5 text-primary mt-0.5" />
+                <div>
+                  <p className="text-sm text-muted-foreground">Address</p>
+                  <p className="font-medium whitespace-pre-line">
+                    {personalInfo.currentAddress || "N/A"}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </Card>
+
+          {/* Course Preferences */}
+          <Card className="p-6">
+            <h3 className="text-xl font-bold mb-4">Course Preferences</h3>
+            <div className="grid sm:grid-cols-2 gap-6 mb-6">
+              <div className="flex items-center gap-2">
+                <BookOpen className="w-5 h-5 text-primary" />
+                <div>
+                  <p className="text-sm text-muted-foreground">Field</p>
+                  <p className="font-medium">
+                    {coursePreferences.fieldOfStudy}
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <Globe className="w-5 h-5 text-primary" />
+                <div>
+                  <p className="text-sm text-muted-foreground">Country</p>
+                  <p className="font-medium">
+                    {coursePreferences.preferredCountry}
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-center gap-2 sm:col-span-2">
+                <Calendar className="w-5 h-5 text-primary" />
+                <div>
+                  <p className="text-sm text-muted-foreground">Start Date</p>
+                  <p className="font-medium">
+                    {coursePreferences.intendedStartDate
+                      ? new Date(
+                          coursePreferences.intendedStartDate
+                        ).toLocaleDateString()
+                      : "N/A"}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <h4 className="font-semibold mb-3 flex items-center gap-2">
+              <GraduationCap className="w-5 h-5" />
+              Universities
+            </h4>
+            <div className="grid gap-3">
+              {coursePreferences.preferredUniversities?.length > 0 ? (
+                coursePreferences.preferredUniversities.map(
+                  (uni: any, i: number) => (
+                    <div key={i} className="p-3 bg-muted rounded-lg">
+                      <p className="font-medium">{uni.universityName}</p>
+                      <p className="text-sm text-muted-foreground">
+                        {uni.courseName}
+                      </p>
+                    </div>
+                  )
                 )
-              )
-            ) : (
-              <p className="text-muted-foreground">No universities selected</p>
-            )}
-          </div>
-        </div>
-      </Card>
-
-      <Card className="p-6 shadow-none rounded-sm">
-        <h3 className="text-xl font-bold mb-4">Academic History</h3>
-        {academicHistory.highSchool?.schoolName ? (
-          <div className="space-y-4">
-            <div>
-              <p className="text-sm text-muted-foreground mb-1">High School</p>
-              <p className="font-semibold">
-                {academicHistory.highSchool.schoolName}
-              </p>
-              <p className="text-sm text-muted-foreground">
-                {academicHistory.highSchool.country} • Graduated{" "}
-                {academicHistory.highSchool.graduationYear}
-              </p>
+              ) : (
+                <p className="text-muted-foreground">None selected</p>
+              )}
             </div>
-          </div>
-        ) : (
-          <p className="text-muted-foreground">No academic history provided</p>
-        )}
-      </Card>
+          </Card>
 
-      <Card className="p-6 bg-muted/50 shadow-none rounded-sm">
-        <h3 className="text-xl font-bold mb-4">Application Details</h3>
-        <div className="grid md:grid-cols-3 gap-6 text-sm">
-          <div>
-            <p className="text-muted-foreground mb-1">Application ID</p>
-            <p className="font-mono font-semibold">{app.applicationId}</p>
-          </div>
-          <div>
-            <p className="text-muted-foreground mb-1">Submitted On</p>
-            <p className="font-medium">
-              {new Date(app.submissionDate).toLocaleDateString()}
-            </p>
-          </div>
-          <div>
-            <p className="text-muted-foreground mb-1">Last Updated</p>
-            <p className="font-medium">
-              {new Date(app.updatedAt).toLocaleDateString()}
-            </p>
-          </div>
+          {/* Academic History */}
+          <Card className="p-6">
+            <h3 className="text-xl font-bold mb-4">Academic History</h3>
+            {academicHistory.highSchool?.schoolName ? (
+              <div>
+                <p className="font-semibold">
+                  {academicHistory.highSchool.schoolName}
+                </p>
+                <p className="text-sm text-muted-foreground">
+                  {academicHistory.highSchool.country} • Graduated{" "}
+                  {academicHistory.highSchool.graduationYear}
+                </p>
+              </div>
+            ) : (
+              <p className="text-muted-foreground">No history provided</p>
+            )}
+          </Card>
+
+          {/* Application Meta */}
+          <Card className="p-6 bg-muted/30">
+            <h3 className="text-xl font-bold mb-4">Application Info</h3>
+            <div className="grid sm:grid-cols-3 gap-4 text-sm">
+              <div>
+                <p className="text-muted-foreground">ID</p>
+                <p className="font-mono font-semibold">{app.applicationId}</p>
+              </div>
+              <div>
+                <p className="text-muted-foreground">Submitted</p>
+                <p>{new Date(app.submissionDate).toLocaleDateString()}</p>
+              </div>
+              <div>
+                <p className="text-muted-foreground">Updated</p>
+                <p>{new Date(app.updatedAt).toLocaleDateString()}</p>
+              </div>
+            </div>
+          </Card>
+
+          {/* Uploaded Documents */}
+          {app.documents?.length > 0 && (
+            <Card className="p-6">
+              <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
+                <Upload className="w-5 h-5 text-primary" />
+                Uploaded Documents
+              </h3>
+              <div className="space-y-3">
+                {app.documents.map((doc: any) => (
+                  <div
+                    key={doc.documentId}
+                    className="flex items-center justify-between p-3 bg-muted/50 rounded-lg hover:bg-muted transition-colors"
+                  >
+                    <div className="flex items-center gap-3">
+                      {/* Image Preview or File Icon */}
+                      {doc.mimeType.startsWith("image/") ? (
+                        <a
+                          href={doc.fileUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="block"
+                        >
+                          <img
+                            src={doc.fileUrl}
+                            alt={doc.fileName}
+                            className="w-12 h-12 object-cover rounded border"
+                          />
+                        </a>
+                      ) : (
+                        <div className="w-12 h-12 bg-gray-200 border-2 border-dashed rounded flex items-center justify-center">
+                          <Upload className="w-5 h-5 text-gray-500" />
+                        </div>
+                      )}
+
+                      <div>
+                        <p className="font-medium text-sm">{doc.fileName}</p>
+                        <p className="text-xs text-muted-foreground">
+                          Uploaded{" "}
+                          {format(
+                            new Date(doc.createdAt),
+                            "MMM d, yyyy 'at' h:mm a"
+                          )}
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Download Button */}
+                    <Button variant="outline" size="sm" asChild>
+                      <a
+                        href={doc.fileUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-1"
+                      >
+                        <ArrowDownToLine className="w-4 h-4" />
+                        Open
+                      </a>
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            </Card>
+          )}
         </div>
-      </Card>
-
-      {(app.documents?.length > 0 || app.payments?.length > 0) && (
-        <Card className="p-6">
-          <div className="grid md:grid-cols-2 gap-6">
-            {app.documents?.length > 0 && (
-              <div>
-                <h4 className="font-semibold mb-3">Documents</h4>
-                <p className="text-sm text-muted-foreground">
-                  {app.documents.length} document(s) uploaded
-                </p>
-              </div>
-            )}
-            {app.payments?.length > 0 && (
-              <div>
-                <h4 className="font-semibold mb-3">Payments</h4>
-                <p className="text-sm text-muted-foreground">
-                  {app.payments.length} payment(s) recorded
-                </p>
-              </div>
-            )}
-          </div>
-        </Card>
-      )}
-
-      {/* <div className="flex gap-3 pb-8">
-        <Button variant="outline" className="bg-transparent">
-          Edit Application
-        </Button>
-        <Button>Download Summary</Button>
-      </div> */}
+      </div>
     </div>
   );
 }

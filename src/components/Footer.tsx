@@ -22,25 +22,25 @@ const Footer = () => {
             <div className="flex gap-3">
               <a
                 href="#"
-                className="w-10 h-10 rounded-full bg-primary/10 hover:bg-primary flex items-center justify-center text-primary hover:text-white transition-all"
+                className="w-10 h-10 rounded-full bg-green-50 hover:bg-primary flex items-center justify-center text-[#00BF48] hover:text-white transition-all"
               >
                 <Facebook className="h-5 w-5" />
               </a>
               <a
                 href="#"
-                className="w-10 h-10 rounded-full bg-primary/10 hover:bg-primary flex items-center justify-center text-primary hover:text-white transition-all"
+                className="w-10 h-10 rounded-full bg-green-50 hover:bg-primary flex items-center justify-center text-[#00BF48] hover:text-white transition-all"
               >
                 <Instagram className="h-5 w-5" />
               </a>
               <a
                 href="#"
-                className="w-10 h-10 rounded-full bg-primary/10 hover:bg-primary flex items-center justify-center text-primary hover:text-white transition-all"
+                className="w-10 h-10 rounded-full bg-green-50 hover:bg-primary flex items-center justify-center text-[#00BF48] hover:text-white transition-all"
               >
                 <Twitter className="h-5 w-5" />
               </a>
               <a
                 href="#"
-                className="w-10 h-10 rounded-full bg-primary/10 hover:bg-primary flex items-center justify-center text-primary hover:text-white transition-all"
+                className="w-10 h-10 rounded-full bg-green-50 hover:bg-primary flex items-center justify-center text-[#00BF48] hover:text-white transition-all"
               >
                 <Linkedin className="h-5 w-5" />
               </a>
@@ -54,7 +54,7 @@ const Footer = () => {
               <li>
                 <a
                   href="#home"
-                  className="text-muted-foreground hover:text-primary transition-colors"
+                  className="text-muted-foreground hover:text-[#00BF48] transition-colors"
                 >
                   Home
                 </a>
@@ -62,7 +62,7 @@ const Footer = () => {
               <li>
                 <a
                   href="#services"
-                  className="text-muted-foreground hover:text-primary transition-colors"
+                  className="text-muted-foreground hover:text-[#00BF48] transition-colors"
                 >
                   Services
                 </a>
@@ -70,7 +70,7 @@ const Footer = () => {
               <li>
                 <a
                   href="#process"
-                  className="text-muted-foreground hover:text-primary transition-colors"
+                  className="text-muted-foreground hover:text-[#00BF48] transition-colors"
                 >
                   How It Works
                 </a>
@@ -78,7 +78,7 @@ const Footer = () => {
               <li>
                 <a
                   href="#benefits"
-                  className="text-muted-foreground hover:text-primary transition-colors"
+                  className="text-muted-foreground hover:text-[#00BF48] transition-colors"
                 >
                   Why Us
                 </a>
@@ -93,7 +93,7 @@ const Footer = () => {
               <li>
                 <a
                   href="#"
-                  className="text-muted-foreground hover:text-primary transition-colors"
+                  className="text-muted-foreground hover:text-[#00BF48] transition-colors"
                 >
                   Partner Universities
                 </a>
@@ -101,27 +101,19 @@ const Footer = () => {
               <li>
                 <a
                   href="#"
-                  className="text-muted-foreground hover:text-primary transition-colors"
+                  className="text-muted-foreground hover:text-[#00BF48] transition-colors"
                 >
                   Student Portal
                 </a>
               </li>
-              <li>
+              {/* <li>
                 <a
                   href="#"
-                  className="text-muted-foreground hover:text-primary transition-colors"
+                  className="text-muted-foreground hover:text-[#00BF48] transition-colors"
                 >
                   FAQs
                 </a>
-              </li>
-              <li>
-                <a
-                  href="#"
-                  className="text-muted-foreground hover:text-primary transition-colors"
-                >
-                  Blog
-                </a>
-              </li>
+              </li> */}
             </ul>
           </div>
 
@@ -129,20 +121,20 @@ const Footer = () => {
           <div>
             <h3 className="font-bold text-lg mb-4">Contact Us</h3>
             <ul className="space-y-2 text-muted-foreground">
-              <li>123 Education Street</li>
-              <li>Global City, GC 12345</li>
+              <li>7681 00200 Nairobi</li>
+              <li>Location is Plessey House , 1st Floor , Along Mombasa Road , Next to Highway Mall </li>
               <li className="pt-2">
                 <a
                   href="tel:+1234567890"
-                  className="hover:text-primary transition-colors"
+                  className="hover:text-[#00BF48] transition-colors"
                 >
-                  +1 (234) 567-890
+                  +254 720874561
                 </a>
               </li>
               <li>
                 <a
                   href="mailto:info@ghi.com"
-                  className="hover:text-primary transition-colors"
+                  className="hover:text-[#00BF48] transition-colors"
                 >
                   info@fhi.com
                 </a>
@@ -159,19 +151,19 @@ const Footer = () => {
           <div className="flex gap-6 text-sm">
             <a
               href="#"
-              className="text-muted-foreground hover:text-primary transition-colors"
+              className="text-muted-foreground hover:text-[#00BF48] transition-colors"
             >
               Privacy Policy
             </a>
             <a
               href="#"
-              className="text-muted-foreground hover:text-primary transition-colors"
+              className="text-muted-foreground hover:text-[#00BF48] transition-colors"
             >
               Terms of Service
             </a>
             <a
               href="#"
-              className="text-muted-foreground hover:text-primary transition-colors"
+              className="text-muted-foreground hover:text-[#00BF48] transition-colors"
             >
               Cookie Policy
             </a>

@@ -53,7 +53,12 @@ const Process = () => {
           <div>
             <h2 className="text-4xl md:text-5xl font-bold mb-4">
               Simple & Transparent
-              <span className="bg-linear-to-r from-primary to-tertiary bg-clip-text text-transparent block">
+              <span className="bg-linear-to-r from-primary to-tertiary bg-clip-text text-transparent block"
+               style={{
+                  backgroundImage:
+                    "linear-gradient(135deg,#00BF48 0%, #1A0BF4  100%)",
+                }}
+              >
                 Application Process
               </span>
             </h2>
@@ -66,7 +71,7 @@ const Process = () => {
               {steps.map((step, index) => (
                 <div key={index} className="flex items-start gap-4 group">
                   <div className="shrink-0 pt-1">
-                    <CheckCircle2 className="h-6 w-6 text-primary" />
+                    <CheckCircle2 className="h-6 w-6 text-[#00BF48]" />
                   </div>
                   <div className="grow">
                     <h3 className="text-xl font-bold mb-2 flex items-center gap-2">

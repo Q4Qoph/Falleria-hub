@@ -42,32 +42,37 @@ export default function Hero() {
       <div className="relative h-screen flex items-center mx-auto overflow-hidden">
         <div className="absolute inset-0 z-0">
           <Image
-            src="/diverse-international-students-studying-together-i.jpg"
+            src="/front-view-friends-checking-menu_23-2148212381.jpg"
             alt="Students studying abroad"
             fill
-            className="object-cover"
+             className="object-cover  -scale-x-100"
             priority
           />
-          <div className="absolute inset-0 bg-black/80" />
+          <div
+            className="absolute inset-0 bg-black/80"
+            style={{
+              background:
+                "linear-gradient(to right, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.6) 50%, transparent 100%)",
+            }}
+          />
         </div>
 
         {/* Content */}
         <div className="container mx-auto px-4 relative z-10 pt-10">
           <div className="max-w-3xl">
-           <h1 className="text-5xl md:text-7xl font-bold mb-6 leading-tight drop-shadow-sm text-white">
-  Your Journey to
-  <span
-    className="block text-transparent bg-clip-text"
-    style={{
-      backgroundImage: "linear-gradient(135deg, #1A0BF4 0%, #00BF48 100%)",
-    }}
-  >
-    Global Education
-  </span>
-  Starts Here
-</h1>
-
-
+            <h1 className="text-5xl md:text-7xl font-bold mb-6 leading-tight drop-shadow-sm text-white">
+              Your Journey to
+              <span
+                className="block text-transparent bg-clip-text"
+                style={{
+                  backgroundImage:
+                    "linear-gradient(135deg,#00BF48 0%, #1A0BF4  100%)",
+                }}
+              >
+                Global Education
+              </span>
+              Starts Here
+            </h1>
 
             <p className="text-xl md:text-2xl text-gray-300 mb-8 leading-relaxed drop-shadow-sm">
               Expert guidance for international university admissions. We
@@ -77,7 +82,7 @@ export default function Hero() {
 
             <div className="flex flex-col sm:flex-row gap-4">
               <Link href="/signup">
-                <Button size="lg" className=" group">
+                <Button size="lg" className="bg-[#00BF48] group">
                   Start Your Application
                   <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
                 </Button>
@@ -204,7 +209,7 @@ export default function Hero() {
             </div>
             <div className="relative h-96 rounded-2xl overflow-hidden shadow-xl">
               <Image
-                src="/mentor-helping-student-with-university-application.jpg"
+                 src="/group-friends-planning-trip-cafe .jpg"
                 alt="Expert guidance"
                 fill
                 className="object-cover"
@@ -215,7 +220,7 @@ export default function Hero() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <div className="relative h-96 rounded-2xl overflow-hidden shadow-xl order-2 lg:order-1">
               <Image
-                src="/students-collaborating-and-studying-together.jpg"
+                src="/study-group-african-people.jpg"
                 alt="Community support"
                 fill
                 className="object-cover"
