@@ -12,6 +12,7 @@ import {
   MessageSquare,
   LogOut,
   Settings,
+  Users,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
@@ -26,7 +27,11 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
   const pathname = usePathname();
 
   useEffect(() => {
-    if (!loading && (!isAuthenticated || user?.role !== "admin")) {
+    if (
+      !loading &&
+      (!isAuthenticated ||
+        (user?.role !== "admin" && user?.role !== "counsellor"))
+    ) {
       router.push("/login");
     }
   }, [isAuthenticated, loading, user, router]);
@@ -42,7 +47,10 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
     );
   }
 
-  if (!isAuthenticated || user?.role !== "admin") {
+  if (
+    !isAuthenticated ||
+    (user?.role !== "admin" && user?.role !== "counsellor")
+  ) {
     return null;
   }
 
@@ -55,6 +63,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
     { name: "Applications", href: "/admin/applications", icon: FileText },
     { name: "Payments", href: "/admin/payments", icon: CreditCard },
     { name: "Inquiries", href: "/admin/inquiries", icon: MessageSquare },
+    // { name: "Users", href: "/admin/users", icon: Users },
   ];
 
   return (
@@ -127,6 +136,20 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
               </Link>
             );
           })}
+          {user?.role === "admin" && (
+    <Link
+      href="/admin/users"
+      className={cn(
+        "flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 hover:bg-gray-100",
+        pathname.startsWith("/admin/users")
+          ? "bg-[#E8E6FF] text-primary font-semibold"
+          : "text-gray-800"
+      )}
+    >
+      <Users className="w-5 h-5" />
+      <span>Users</span>
+    </Link>
+  )}
         </nav>
 
         {/* Footer Section */}

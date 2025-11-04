@@ -13,7 +13,7 @@ interface User {
   id: string;
   email: string;
   firstName: string;
-  role: "student" | "admin";
+  role: "student" | "admin" | 'counsellor';
 }
 
 interface AuthContextType {
@@ -74,7 +74,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       localStorage.setItem("user", JSON.stringify(data.user));
       localStorage.setItem("authToken", data.token);
 
-      if (user.role === "admin") {
+      if (user.role === "admin" || user.role === "counsellor") {
         router.push("/admin/dashboard");
       } else if (user.role === "student") {
         router.push("/student/dashboard");
