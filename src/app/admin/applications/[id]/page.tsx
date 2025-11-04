@@ -49,7 +49,7 @@ const statuses = [
   "Awaiting Institution Decision",
   "Offer Received",
   "Application Unsuccessful",
-  "Completed / Closed",
+  "Completed",
 ];
 
 // Reusable Status Badge Color
@@ -63,7 +63,7 @@ const getStatusColor = (status: string) => {
     "Awaiting Institution Decision": "bg-cyan-500 text-white",
     "Offer Received": "bg-green-500 text-white",
     "Application Unsuccessful": "bg-red-500 text-white",
-    "Completed / Closed": "bg-gray-500 text-white",
+    "Completed": "bg-gray-500 text-white",
   };
   return colors[status] || "bg-gray-300 text-gray-800";
 };

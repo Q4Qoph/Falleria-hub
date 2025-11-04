@@ -140,37 +140,39 @@ export default function StudentDashboard() {
         {stats.applications?.length ? (
           <div className="space-y-4">
             {stats.applications.map((app: any) => (
-              <Link
-                key={app.applicationId}
-                href={`/student/application/${app.applicationId}`}
-              >
-                <div
+              <div>
+                <Link
                   key={app.applicationId}
-                  className="flex items-center justify-between p-4 rounded-lg bg-secondary/50 hover:bg-secondary transition-all duration-200"
+                  href={`/student/application/${app.applicationId}`}
                 >
-                  <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 rounded-lg bg-[#1A0BF4] flex items-center justify-center shadow-md">
-                      <FileText className="w-6 h-6 text-white" />
-                    </div>
+                  <div
+                    key={app.applicationId}
+                    className="flex items-center justify-between p-4 rounded-lg bg-secondary/50 hover:bg-secondary transition-all duration-200"
+                  >
+                    <div className="flex items-center gap-4">
+                      <div className="w-12 h-12 rounded-lg bg-[#1A0BF4] flex items-center justify-center shadow-md">
+                        <FileText className="w-6 h-6 text-white" />
+                      </div>
 
-                    <div>
-                      <h3 className="font-semibold text-foreground">
-                        {app.mainUniversityChoice}
-                      </h3>
-                      <div className="flex items-center gap-2 mt-1 text-muted-foreground">
-                        <MapPin className="w-3 h-3" />
-                        <p className="text-sm">{app.country}</p>
-                        <span>•</span>
-                        <p className="text-sm">{app.courseName}</p>
+                      <div>
+                        <h3 className="font-semibold text-foreground">
+                          {app.mainUniversityChoice}
+                        </h3>
+                        <div className="flex items-center gap-2 mt-1 text-muted-foreground">
+                          <MapPin className="w-3 h-3" />
+                          <p className="text-sm">{app.country}</p>
+                          <span>•</span>
+                          <p className="text-sm">{app.courseName}</p>
+                        </div>
                       </div>
                     </div>
-                  </div>
 
-                  <Badge className={getStatusBadge(app.status)}>
-                    {app.status}
-                  </Badge>
-                </div>
-              </Link>
+                    <Badge className={getStatusBadge(app.status)}>
+                      {app.status}
+                    </Badge>
+                  </div>
+                </Link>
+              </div>
             ))}
           </div>
         ) : (

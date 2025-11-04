@@ -133,60 +133,62 @@ const Applications = () => {
       <div className="space-y-4">
         {applications && applications.length > 0 ? (
           applications?.map((app: any) => (
-            <Link
-              key={app.applicationId}
-              href={`/student/application/${app.applicationId}`}
-            >
-              <Card className="p-6 hover:shadow-sm shadow-none rounded-sm transition-all duration-300 cursor-pointer hover:bg-muted/50">
-                <div className="flex items-center justify-between">
-                  {/* Left Content */}
-                  <div className="flex-1">
-                    {/* Student Name & University */}
-                    <div className="mb-3">
-                      {/* <h3 className="font-semibold text-sm text-muted-foreground">
+            <div>
+              <Link
+                key={app.applicationId}
+                href={`/student/application/${app.applicationId}`}
+              >
+                <Card className="p-6 hover:shadow-sm shadow-none rounded-sm transition-all duration-300 cursor-pointer hover:bg-muted/50">
+                  <div className="flex items-center justify-between">
+                    {/* Left Content */}
+                    <div className="flex-1">
+                      {/* Student Name & University */}
+                      <div className="mb-3">
+                        {/* <h3 className="font-semibold text-sm text-muted-foreground">
                         {app.personalInfo?.fullName || "Unnamed Applicant"}
                       </h3> */}
-                      <h2 className="text-xl font-bold text-foreground">
+                        <h2 className="text-xl font-bold text-foreground">
+                          {app.coursePreferences?.preferredUniversities?.[0]
+                            ?.universityName || "Unnamed University"}
+                        </h2>
+                      </div>
+
+                      {/* Course Name */}
+                      <p className="text-sm text-foreground mb-4">
                         {app.coursePreferences?.preferredUniversities?.[0]
-                          ?.universityName || "Unnamed University"}
-                      </h2>
-                    </div>
+                          ?.courseName || "Course not specified"}
+                      </p>
 
-                    {/* Course Name */}
-                    <p className="text-sm text-foreground mb-4">
-                      {app.coursePreferences?.preferredUniversities?.[0]
-                        ?.courseName || "Course not specified"}
-                    </p>
-
-                    {/* Quick Info Row */}
-                    <div className="flex flex-wrap gap-4 text-sm">
-                      <div className="flex items-center gap-2">
-                        <MapPin className="w-4 h-4 text-muted-foreground" />
-                        <span>{app.coursePreferences?.preferredCountry}</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <BookOpen className="w-4 h-4 text-muted-foreground" />
-                        <span>{app.coursePreferences?.fieldOfStudy}</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Calendar className="w-4 h-4 text-muted-foreground" />
-                        <span>
-                          {new Date(app.submissionDate).toLocaleDateString()}
-                        </span>
+                      {/* Quick Info Row */}
+                      <div className="flex flex-wrap gap-4 text-sm">
+                        <div className="flex items-center gap-2">
+                          <MapPin className="w-4 h-4 text-muted-foreground" />
+                          <span>{app.coursePreferences?.preferredCountry}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <BookOpen className="w-4 h-4 text-muted-foreground" />
+                          <span>{app.coursePreferences?.fieldOfStudy}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Calendar className="w-4 h-4 text-muted-foreground" />
+                          <span>
+                            {new Date(app.submissionDate).toLocaleDateString()}
+                          </span>
+                        </div>
                       </div>
                     </div>
-                  </div>
 
-                  {/* Right Side - Status & Arrow */}
-                  <div className="flex items-center gap-4 ml-6">
-                    <Badge className={getStatusColor(app.status)}>
-                      {app.status}
-                    </Badge>
-                    <ChevronRight className="w-5 h-5 text-muted-foreground" />
+                    {/* Right Side - Status & Arrow */}
+                    <div className="flex items-center gap-4 ml-6">
+                      <Badge className={getStatusColor(app.status)}>
+                        {app.status}
+                      </Badge>
+                      <ChevronRight className="w-5 h-5 text-muted-foreground" />
+                    </div>
                   </div>
-                </div>
-              </Card>
-            </Link>
+                </Card>
+              </Link>
+            </div>
           ))
         ) : (
           <div className="text-center py-16 text-gray-500">
