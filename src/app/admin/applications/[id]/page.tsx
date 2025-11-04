@@ -1,21 +1,23 @@
-"use client"
+"use client";
 
-import { useEffect, useState } from "react"
-import { useParams } from "next/navigation"
-import apiClient from "@/lib/axios-client"
-import Link from "next/link"
+import { useEffect, useState } from "react";
+import { useParams } from "next/navigation";
+import apiClient from "@/lib/axios-client";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { Check, CheckCircle } from "lucide-react";
 
 interface ApplicationDetail {
-  id: number
-  studentName: string
-  email: string
-  status: string
-  submissionDate: string
-  personalInfo: any
-  academicHistory: any
-  coursePreferences: any
-  documents: any[]
-  adminNotes: string | null
+  id: number;
+  studentName: string;
+  email: string;
+  status: string;
+  submissionDate: string;
+  personalInfo: any;
+  academicHistory: any;
+  coursePreferences: any;
+  documents: any[];
+  adminNotes: string | null;
 }
 
 const statuses = [
@@ -28,22 +30,24 @@ const statuses = [
   "Offer Received",
   "Application Unsuccessful",
   "Completed / Closed",
-]
+];
 
 export default function ApplicationDetail() {
-  const params = useParams()
-  const applicationId = params.id as string
-  const [application, setApplication] = useState<ApplicationDetail | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [updating, setUpdating] = useState(false)
-  const [newStatus, setNewStatus] = useState("")
-  const [notes, setNotes] = useState("")
+  const params = useParams();
+  const applicationId = params.id as string;
+  const [application, setApplication] = useState<ApplicationDetail | null>(
+    null
+  );
+  const [loading, setLoading] = useState(true);
+  const [updating, setUpdating] = useState(false);
+  const [newStatus, setNewStatus] = useState("");
+  const [notes, setNotes] = useState("");
 
   useEffect(() => {
     const fetchApplication = async () => {
       try {
-        const response = await apiClient.get(`/applications/${applicationId}`)
-        const app = response.data
+        const response = await apiClient.get(`/applications/${applicationId}`);
+        const app = response.data;
 
         // ✅ Map structure to your component’s expected shape
         const mapped: ApplicationDetail = {
@@ -57,41 +61,41 @@ export default function ApplicationDetail() {
           coursePreferences: app.coursePreferences,
           documents: app.documents || [],
           adminNotes: app.adminNotes,
-        }
+        };
 
-        setApplication(mapped)
-        setNewStatus(app.status)
-        setNotes(app.adminNotes || "")
+        setApplication(mapped);
+        setNewStatus(app.status);
+        setNotes(app.adminNotes || "");
       } catch (error) {
-        console.error("Error fetching application:", error)
+        console.error("Error fetching application:", error);
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
-    }
+    };
 
-    fetchApplication()
-  }, [applicationId])
+    fetchApplication();
+  }, [applicationId]);
 
   const handleStatusUpdate = async () => {
-    setUpdating(true)
+    setUpdating(true);
     try {
       await apiClient.patch(`/applications/${applicationId}/status`, {
         status: newStatus,
         adminNotes: notes,
-      })
+      });
 
       setApplication((prev) =>
-        prev ? { ...prev, status: newStatus, adminNotes: notes } : null,
-      )
+        prev ? { ...prev, status: newStatus, adminNotes: notes } : null
+      );
 
-      alert("Application updated successfully!")
+      alert("Application updated successfully!");
     } catch (error) {
-      console.error("Error updating application:", error)
-      alert("Failed to update application")
+      console.error("Error updating application:", error);
+      alert("Failed to update application");
     } finally {
-      setUpdating(false)
+      setUpdating(false);
     }
-  }
+  };
 
   if (loading) {
     return (
@@ -101,7 +105,7 @@ export default function ApplicationDetail() {
           <p className="text-secondary">Loading application...</p>
         </div>
       </div>
-    )
+    );
   }
 
   if (!application) {
@@ -112,12 +116,15 @@ export default function ApplicationDetail() {
           Back to Applications
         </Link>
       </div>
-    )
+    );
   }
 
   return (
     <div className="p-8">
-      <Link href="/admin/applications" className="text-primary hover:underline mb-6 inline-block">
+      <Link
+        href="/admin/applications"
+        className="text-primary hover:underline mb-6 inline-block"
+      >
         ← Back to Applications
       </Link>
 
@@ -128,52 +135,73 @@ export default function ApplicationDetail() {
           <div className="bg-white rounded-lg shadow border border-border p-6">
             <div className="flex items-start justify-between mb-4">
               <div>
-                <h1 className="text-3xl font-bold mb-2">{application.studentName}</h1>
-                <p className="text-secondary">{application.email}</p>
+                <h1 className="text-3xl font-bold mb-2">
+                  {application.studentName}
+                </h1>
+                <p className="text-sm text-muted-foreground">
+                  {application.email}
+                </p>
               </div>
               <span className="px-4 py-2 bg-blue-100 text-blue-800 rounded-full font-semibold">
                 {application.status}
               </span>
             </div>
-            <p className="text-secondary text-sm">
-              Submitted: {new Date(application.submissionDate).toLocaleDateString()}
+            <p className="text-sm text-muted-foreground">
+              Submitted:{" "}
+              {new Date(application.submissionDate).toLocaleDateString()}
             </p>
           </div>
 
           {/* Personal Info */}
           <div className="bg-white rounded-lg shadow border border-border p-6">
-            <h2 className="text-2xl font-bold mb-4 text-primary">Personal Information</h2>
+            <h2 className="text-2xl font-bold mb-4">
+              Personal Information
+            </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <p className="text-secondary text-sm">Full Name</p>
-                <p className="font-semibold">{application.personalInfo?.fullName}</p>
+                <p className="text-sm text-muted-foreground">Full Name</p>
+                <p className="font-semibold">
+                  {application.personalInfo?.fullName}
+                </p>
               </div>
               <div>
-                <p className="text-secondary text-sm">Date of Birth</p>
-                <p className="font-semibold">{application.personalInfo?.dateOfBirth}</p>
+                <p className="text-sm text-muted-foreground">Date of Birth</p>
+                <p className="font-semibold">
+                  {application.personalInfo?.dateOfBirth}
+                </p>
               </div>
               <div>
-                <p className="text-secondary text-sm">Nationality</p>
-                <p className="font-semibold">{application.personalInfo?.nationality}</p>
+                <p className="text-sm text-muted-foreground">Nationality</p>
+                <p className="font-semibold">
+                  {application.personalInfo?.nationality}
+                </p>
               </div>
               <div>
-                <p className="text-secondary text-sm">Passport Number</p>
-                <p className="font-semibold">{application.personalInfo?.passportNumber}</p>
+                <p className="text-sm text-muted-foreground">Passport Number</p>
+                <p className="font-semibold">
+                  {application.personalInfo?.passportNumber}
+                </p>
               </div>
               <div>
-                <p className="text-secondary text-sm">Phone</p>
-                <p className="font-semibold">{application.personalInfo?.phone}</p>
+                <p className="text-sm text-muted-foreground">Phone</p>
+                <p className="font-semibold">
+                  {application.personalInfo?.phone}
+                </p>
               </div>
               <div>
-                <p className="text-secondary text-sm">Address</p>
-                <p className="font-semibold">{application.personalInfo?.currentAddress}</p>
+                <p className="text-sm text-muted-foreground">Address</p>
+                <p className="font-semibold">
+                  {application.personalInfo?.currentAddress}
+                </p>
               </div>
             </div>
           </div>
 
           {/* Academic History */}
           <div className="bg-white rounded-lg shadow border border-border p-6">
-            <h2 className="text-2xl font-bold mb-4 text-primary">Academic History</h2>
+            <h2 className="text-2xl font-bold mb-4">
+              Academic History
+            </h2>
 
             <div className="space-y-4">
               {application.academicHistory?.highSchool && (
@@ -188,21 +216,25 @@ export default function ApplicationDetail() {
               )}
 
               {Array.isArray(application.academicHistory?.higherEducation) &&
-                application.academicHistory.higherEducation.map((edu: any, i: number) => (
-                  <div key={i}>
-                    <h3 className="font-semibold mb-2">Higher Education</h3>
-                    <p className="text-sm text-secondary">
-                      {edu.degree} from {edu.universityName} (Graduated {edu.graduationYear}) — GPA:{" "}
-                      {edu.gpa}
-                    </p>
-                  </div>
-                ))}
+                application.academicHistory.higherEducation.map(
+                  (edu: any, i: number) => (
+                    <div key={i}>
+                      <h3 className="font-semibold mb-2">Higher Education</h3>
+                      <p className="text-sm text-secondary">
+                        {edu.degree} from {edu.universityName} (Graduated{" "}
+                        {edu.graduationYear}) — GPA: {edu.gpa}
+                      </p>
+                    </div>
+                  )
+                )}
             </div>
           </div>
 
           {/* Course Preferences */}
           <div className="bg-white rounded-lg shadow border border-border p-6">
-            <h2 className="text-2xl font-bold mb-4 text-primary">Course Preferences</h2>
+            <h2 className="text-2xl font-bold mb-4">
+              Course Preferences
+            </h2>
             <div className="space-y-2">
               <p>
                 <span className="font-semibold">Field of Study:</span>{" "}
@@ -220,14 +252,16 @@ export default function ApplicationDetail() {
               </p>
               <p>
                 <span className="font-semibold">Intended Start Date:</span>{" "}
-                {new Date(application.coursePreferences?.intendedStartDate).toLocaleDateString()}
+                {new Date(
+                  application.coursePreferences?.intendedStartDate
+                ).toLocaleDateString()}
               </p>
             </div>
           </div>
 
           {/* Documents */}
           <div className="bg-white rounded-lg shadow border border-border p-6">
-            <h2 className="text-2xl font-bold mb-4 text-primary">Documents</h2>
+            <h2 className="text-2xl font-bold mb-4">Documents</h2>
             {application.documents?.length > 0 ? (
               <div className="space-y-2">
                 {application.documents.map((doc, idx) => (
@@ -235,7 +269,9 @@ export default function ApplicationDetail() {
                     key={idx}
                     className="flex items-center justify-between p-3 bg-neutral-50 rounded-lg"
                   >
-                    <span className="font-semibold capitalize">{doc.documentType}</span>
+                    <span className="font-semibold capitalize">
+                      {doc.documentType}
+                    </span>
                     <a
                       href={doc.fileUrl}
                       target="_blank"
@@ -248,7 +284,7 @@ export default function ApplicationDetail() {
                 ))}
               </div>
             ) : (
-              <p className="text-secondary">No documents uploaded</p>
+              <p className="text-sm text-muted-foreground">No documents uploaded</p>
             )}
           </div>
         </div>
@@ -260,7 +296,9 @@ export default function ApplicationDetail() {
 
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-semibold mb-2">New Status</label>
+                <label className="block text-sm font-semibold mb-2">
+                  New Status
+                </label>
                 <select
                   value={newStatus}
                   onChange={(e) => setNewStatus(e.target.value)}
@@ -275,7 +313,9 @@ export default function ApplicationDetail() {
               </div>
 
               <div>
-                <label className="block text-sm font-semibold mb-2">Admin Notes</label>
+                <label className="block text-sm font-semibold mb-2">
+                  Admin Notes
+                </label>
                 <textarea
                   value={notes}
                   onChange={(e) => setNotes(e.target.value)}
@@ -285,19 +325,20 @@ export default function ApplicationDetail() {
                 />
               </div>
 
-              <button
+              <Button
                 onClick={handleStatusUpdate}
                 disabled={updating}
-                className="w-full btn-primary disabled:opacity-50"
+                className="w-full bg-primary disabled:bg-primary-50"
               >
                 {updating ? "Updating..." : "Update Application"}
-              </button>
+              </Button>
             </div>
 
             {application.adminNotes && (
               <div className="mt-6 pt-6 border-t border-border">
                 <h4 className="font-semibold mb-2">Current Notes</h4>
-                <p className="text-sm text-secondary bg-neutral-50 p-3 rounded-lg">
+                <p className="flex items-center gap-2 text-sm text-[#0BF48E] bg-green-50 p-3 rounded-lg">
+                  <CheckCircle className="text-sm"/>
                   {application.adminNotes}
                 </p>
               </div>
@@ -306,5 +347,5 @@ export default function ApplicationDetail() {
         </div>
       </div>
     </div>
-  )
+  );
 }

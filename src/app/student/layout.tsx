@@ -48,7 +48,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
           flex 
           flex-col 
           bg-white 
-          shadow-lg 
+          shadow-sm
           border-r 
           border-gray-200
         "
@@ -87,8 +87,8 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
                   "hover:bg-gray-100"
                 )}
                 style={{
-                  backgroundColor: isActive ? "#1A0BF4" : "transparent",
-                  color: isActive ? "white" : "#111827",
+                  backgroundColor: isActive ? "#E8E6FF" : "transparent",
+                  color: isActive ? "#1A0BF4" : "#111827",
                   fontWeight: isActive ? 600 : 400,
                 }}
               >

@@ -44,9 +44,7 @@ export default function StudentDashboard() {
   });
 
   if (isLoading) {
-    return (
-      <StudentDashboardSkeleton/>
-    );
+    return <StudentDashboardSkeleton />;
   }
 
   if (isError || !stats) {
@@ -80,26 +78,19 @@ export default function StudentDashboard() {
       title: "Total Paid",
       value: `$${stats.summary.totalPaid || 0}`,
       icon: DollarSign,
-      textColor: "text-accent",
+      textColor: "text-secondary-100",
     },
   ];
 
   return (
     <div className="space-y-8">
       {/* ===== Hero Section ===== */}
-      <div className="relative h-48 rounded-2xl overflow-hidden shadow-lg">
-        <Image
-          src={dashboardHero}
-          alt="Student Dashboard"
-          className="w-full h-full object-cover"
-        />
-        <div className="absolute inset-0 bg-linear-to-r from-primary/90 to-accent/70 flex items-center px-8">
-          <div className="text-white">
-            <h1 className="text-4xl font-bold mb-2">Student Dashboard</h1>
-            <p className="text-lg text-white/90">
-              Track your applications and payments in real-time
-            </p>
-          </div>
+      <div className="flex items-center">
+        <div className="">
+          <h1 className="text-4xl font-bold mb-2">Student Dashboard</h1>
+          <p className="text-lg text-muted-foreground ">
+            Track your applications and payments in real-time
+          </p>
         </div>
       </div>
 
@@ -130,7 +121,7 @@ export default function StudentDashboard() {
       </div>
 
       {/* ===== Recent Applications ===== */}
-      <Card className="p-6 border-0 shadow-md">
+      <Card className="p-6  shadow-none rounded-sm">
         <div className="flex items-center justify-between mb-6">
           <div>
             <h2 className="text-2xl font-bold">Recent Applications</h2>
@@ -139,7 +130,7 @@ export default function StudentDashboard() {
             </p>
           </div>
           <Link href="/student/application">
-            <Button variant="outline" className="gap-2 text-white">
+            <Button variant="outline" className="gap-2 text-">
               View All
               <ArrowRight className="w-4 h-4" />
             </Button>
@@ -149,32 +140,37 @@ export default function StudentDashboard() {
         {stats.applications?.length ? (
           <div className="space-y-4">
             {stats.applications.map((app: any) => (
-              <div
+              <Link
                 key={app.applicationId}
-                className="flex items-center justify-between p-4 rounded-lg bg-secondary/50 hover:bg-secondary transition-all duration-200"
+                href={`/student/application/${app.applicationId}`}
               >
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-lg bg-[#3aacde] flex items-center justify-center shadow-md">
-                    <FileText className="w-6 h-6 text-white" />
-                  </div>
+                <div
+                  key={app.applicationId}
+                  className="flex items-center justify-between p-4 rounded-lg bg-secondary/50 hover:bg-secondary transition-all duration-200"
+                >
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 rounded-lg bg-[#1A0BF4] flex items-center justify-center shadow-md">
+                      <FileText className="w-6 h-6 text-white" />
+                    </div>
 
-                  <div>
-                    <h3 className="font-semibold text-foreground">
-                      {app.mainUniversityChoice}
-                    </h3>
-                    <div className="flex items-center gap-2 mt-1 text-muted-foreground">
-                      <MapPin className="w-3 h-3" />
-                      <p className="text-sm">{app.country}</p>
-                      <span>•</span>
-                      <p className="text-sm">{app.courseName}</p>
+                    <div>
+                      <h3 className="font-semibold text-foreground">
+                        {app.mainUniversityChoice}
+                      </h3>
+                      <div className="flex items-center gap-2 mt-1 text-muted-foreground">
+                        <MapPin className="w-3 h-3" />
+                        <p className="text-sm">{app.country}</p>
+                        <span>•</span>
+                        <p className="text-sm">{app.courseName}</p>
+                      </div>
                     </div>
                   </div>
-                </div>
 
-                <Badge className={getStatusBadge(app.status)}>
-                  {app.status}
-                </Badge>
-              </div>
+                  <Badge className={getStatusBadge(app.status)}>
+                    {app.status}
+                  </Badge>
+                </div>
+              </Link>
             ))}
           </div>
         ) : (

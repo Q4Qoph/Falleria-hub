@@ -13,11 +13,20 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Plus, FileText, MapPin, Calendar, GraduationCap } from "lucide-react";
+import {
+  Plus,
+  FileText,
+  MapPin,
+  Calendar,
+  GraduationCap,
+  ChevronRight,
+  BookOpen,
+} from "lucide-react";
 import { toast } from "sonner";
 import ApplicationForm from "./new/page";
 import apiClient from "@/lib/axios-client";
 import ApplicationsSkeleton from "./loading";
+import Link from "next/link";
 
 // 🔹 Fetch function
 const fetchApplications = async () => {
@@ -121,64 +130,66 @@ const Applications = () => {
         </Dialog>
       </div>
 
-      {/* Applications Grid */}
-      <div className="gap-6 space-y-4">
+      <div className="space-y-4">
         {applications && applications.length > 0 ? (
           applications?.map((app: any) => (
-            <Card
+            <Link
               key={app.applicationId}
-              className="p-6 hover:shadow-lg transition-all duration-300 border-0 shadow-md animate-fade-in"
+              href={`/student/application/${app.applicationId}`}
             >
-              <div className="flex items-start justify-between mb-4">
-                <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 rounded-xl bg-[#3aacde] flex items-center justify-center shadow-md">
-                    <GraduationCap className="w-6 h-6 text-white" />
-                  </div>
-                  <div>
-                    <h3 className="font-bold text-lg">
+              <Card className="p-6 hover:shadow-sm shadow-none rounded-sm transition-all duration-300 cursor-pointer hover:bg-muted/50">
+                <div className="flex items-center justify-between">
+                  {/* Left Content */}
+                  <div className="flex-1">
+                    {/* Student Name & University */}
+                    <div className="mb-3">
+                      {/* <h3 className="font-semibold text-sm text-muted-foreground">
+                        {app.personalInfo?.fullName || "Unnamed Applicant"}
+                      </h3> */}
+                      <h2 className="text-xl font-bold text-foreground">
+                        {app.coursePreferences?.preferredUniversities?.[0]
+                          ?.universityName || "Unnamed University"}
+                      </h2>
+                    </div>
+
+                    {/* Course Name */}
+                    <p className="text-sm text-foreground mb-4">
                       {app.coursePreferences?.preferredUniversities?.[0]
-                        ?.universityName || "Unnamed University"}
-                    </h3>
-                    <div className="flex items-center gap-1 text-sm text-muted-foreground mt-1">
-                      <MapPin className="w-3 h-3" />
-                      <span>{app.coursePreferences?.preferredCountry}</span>
+                        ?.courseName || "Course not specified"}
+                    </p>
+
+                    {/* Quick Info Row */}
+                    <div className="flex flex-wrap gap-4 text-sm">
+                      <div className="flex items-center gap-2">
+                        <MapPin className="w-4 h-4 text-muted-foreground" />
+                        <span>{app.coursePreferences?.preferredCountry}</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <BookOpen className="w-4 h-4 text-muted-foreground" />
+                        <span>{app.coursePreferences?.fieldOfStudy}</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Calendar className="w-4 h-4 text-muted-foreground" />
+                        <span>
+                          {new Date(app.submissionDate).toLocaleDateString()}
+                        </span>
+                      </div>
                     </div>
                   </div>
-                </div>
-                <Badge className={getStatusColor(app.status)}>
-                  {app.status}
-                </Badge>
-              </div>
 
-              <div className="space-y-3">
-                <div className="flex items-center gap-2 text-sm">
-                  <FileText className="w-4 h-4 text-muted-foreground" />
-                  <span className="font-medium">
-                    {app.coursePreferences?.fieldOfStudy || "N/A"}
-                  </span>
+                  {/* Right Side - Status & Arrow */}
+                  <div className="flex items-center gap-4 ml-6">
+                    <Badge className={getStatusColor(app.status)}>
+                      {app.status}
+                    </Badge>
+                    <ChevronRight className="w-5 h-5 text-muted-foreground" />
+                  </div>
                 </div>
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <Calendar className="w-4 h-4" />
-                  <span>
-                    Submitted:{" "}
-                    {new Date(app.submissionDate).toLocaleDateString() ||
-                      "Not submitted"}
-                  </span>
-                </div>
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <Calendar className="w-4 h-4" />
-                  <span>
-                    Intended Start:{" "}
-                    {new Date(
-                      app.coursePreferences?.intendedStartDate
-                    ).toLocaleDateString()}
-                  </span>
-                </div>
-              </div>
-            </Card>
+              </Card>
+            </Link>
           ))
         ) : (
-          <div className="col-span-full text-center py-16 text-gray-500">
+          <div className="text-center py-16 text-gray-500">
             <p className="text-lg font-medium">No applications found.</p>
             <p className="mt-2 text-sm">
               You haven't submitted any applications yet. Click the button above

@@ -64,19 +64,12 @@ export default function StudentDashboardSkeleton() {
   return (
     <div className="space-y-8">
       {/* ===== Hero Section ===== */}
-      <div className="relative h-48 rounded-2xl overflow-hidden shadow-lg">
-        <Image
-          src={dashboardHero}
-          alt="Student Dashboard"
-          className="w-full h-full object-cover"
-        />
-        <div className="absolute inset-0 bg-gradient-to-r from-primary/90 to-accent/70 flex items-center px-8">
-          <div className="text-white">
-            <h1 className="text-4xl font-bold mb-2">Student Dashboard</h1>
-            <p className="text-lg text-white/90">
-              Track your applications and payments in real-time
-            </p>
-          </div>
+      <div className="flex items-center">
+        <div className="">
+          <h1 className="text-4xl font-bold mb-2">Student Dashboard</h1>
+          <p className="text-lg text-muted-foreground ">
+            Track your applications and payments in real-time
+          </p>
         </div>
       </div>
 

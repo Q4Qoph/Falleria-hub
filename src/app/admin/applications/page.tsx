@@ -170,7 +170,7 @@ export default function ApplicationsManagement() {
             >
               {/* Left: Icon + Info */}
               <div className="flex items-center gap-4">
-                <div className="w-12 h-12 rounded-lg flex items-center justify-center bg-[#3aacde] shadow-md">
+                <div className="w-12 h-12 rounded-lg flex items-center justify-center bg-primary shadow-md">
                   <FileText className="w-6 h-6 text-white " />
                 </div>
 

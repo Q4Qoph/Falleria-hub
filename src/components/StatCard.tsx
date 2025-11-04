@@ -10,7 +10,13 @@ interface StatCardProps {
   variant?: "default" | "accent" | "success" | "warning";
 }
 
-const StatCard = ({ title, value, icon: Icon, trend, variant = "default" }: StatCardProps) => {
+const StatCard = ({
+  title,
+  value,
+  icon: Icon,
+  trend,
+  variant = "default",
+}: StatCardProps) => {
   const variantStyles = {
     default: "gradient-primary",
     accent: "gradient-accent",
@@ -19,16 +25,21 @@ const StatCard = ({ title, value, icon: Icon, trend, variant = "default" }: Stat
   };
 
   return (
-    <Card className="p-6 hover:shadow-lg transition-all duration-300 animate-fade-in border-0 shadow-md">
+    <Card className="p-6 hover:shadow-sm transition-all duration-300 animate-fade-in rounded-sm shadow-none ">
       <div className="flex items-start justify-between">
         <div className="flex-1">
-          <p className="text-sm font-medium text-muted-foreground mb-1">{title}</p>
+          <p className="text-sm font-medium text-muted-foreground mb-1">
+            {title}
+          </p>
           <p className="text-3xl font-bold text-foreground mb-2">{value}</p>
-          {trend && (
-            <p className="text-xs text-muted-foreground">{trend}</p>
-          )}
+          {trend && <p className="text-xs text-muted-foreground">{trend}</p>}
         </div>
-        <div className={cn("w-12 h-12 rounded-xl flex items-center justify-center shadow-glow", variantStyles[variant])}>
+        <div
+          className={cn(
+            "w-12 h-12 rounded-xl flex items-center justify-center shadow-glow",
+            variantStyles[variant]
+          )}
+        >
           <Icon className="w-6 h-6 text-white" />
         </div>
       </div>

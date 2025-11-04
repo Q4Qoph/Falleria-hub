@@ -49,7 +49,7 @@ export default function AdminDashboard() {
   });
 
   if (isLoading) {
-    return <AdminDashboardSkeleton/>
+    return <AdminDashboardSkeleton />;
   }
 
   if (isError || !stats) {
@@ -90,19 +90,13 @@ export default function AdminDashboard() {
   return (
     <div className="space-y-8">
       {/* ===== Hero Section ===== */}
-      <div className="relative h-48 rounded-2xl overflow-hidden shadow-lg">
-        <Image
-          src={dashboardHero}
-          alt="Admin Overview"
-          className="w-full h-full object-cover"
-        />
-        <div className="absolute inset-0 bg-linear-to-r from-primary/90 to-accent/70 flex items-center px-8">
-          <div className="text-white">
-            <h1 className="text-4xl font-bold mb-2">Admin Dashboard</h1>
-            <p className="text-lg text-white/90">
-              Monitor applications, payments, and inquiries in real-time
-            </p>
-          </div>
+
+      <div className="flex items-center">
+        <div className="">
+          <h1 className="text-4xl font-bold mb-2">Admin Dashboard</h1>
+          <p className="text-lg text-muted-foreground">
+            Monitor applications, payments, and inquiries in real-time
+          </p>
         </div>
       </div>
 
@@ -111,7 +105,7 @@ export default function AdminDashboard() {
         {metrics.map((metric, idx) => (
           <Card
             key={idx}
-            className="p-6 shadow-md border-0 hover:shadow-lg transition-all duration-300"
+            className="p-6 shadow-none rounded-sm hover:shadow-sm  transition-all duration-300"
           >
             <div className="flex items-start justify-between">
               <div>
@@ -133,7 +127,7 @@ export default function AdminDashboard() {
       </div>
 
       {/* ===== Recent Applications ===== */}
-      <Card className="p-6 border-0 shadow-md">
+      <Card className="p-6 shadow-none hover:shadow-sm ">
         <div className="flex items-center justify-between mb-6">
           <div>
             <h2 className="text-2xl font-bold">Recent Applications</h2>
@@ -142,7 +136,7 @@ export default function AdminDashboard() {
             </p>
           </div>
           <Link href="/admin/applications">
-            <Button variant="outline" className="gap-2 text-white">
+            <Button variant="outline" className="gap-2">
               View All
               <ArrowRight className="w-4 h-4" />
             </Button>
@@ -157,7 +151,7 @@ export default function AdminDashboard() {
                 className="flex items-center justify-between p-4 rounded-lg bg-secondary/50 hover:bg-secondary transition-all duration-200"
               >
                 <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-lg bg-[#3aacde] flex items-center justify-center shadow-md">
+                  <div className="w-12 h-12 rounded-lg bg-primary flex items-center justify-center shadow-md">
                     <FileText className="w-6 h-6 text-white" />
                   </div>
 

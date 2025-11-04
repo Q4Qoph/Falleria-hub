@@ -117,7 +117,7 @@ export default function Payments() {
       </div>
 
       {/* Payment History */}
-      <Card className="p-6 border-0 shadow-md">
+      <Card className="p-6 shadow-none rounded-sm">
         <div className="mb-6">
           <h2 className="text-2xl font-bold">Payment History</h2>
           <p className="text-sm text-muted-foreground mt-1">
@@ -182,7 +182,7 @@ export default function Payments() {
       </Card>
 
       {/* Summary Card */}
-      <Card className="p-6 border-0 shadow-md gradient-accent text-white">
+      {/* <Card className="p-6 border-0 shadow-md gradient-accent text-white">
         <div className="flex items-center justify-between">
           <div>
             <p className="text-white/80 text-sm font-medium mb-1">
@@ -198,7 +198,7 @@ export default function Payments() {
             <DollarSign className="w-10 h-10" />
           </div>
         </div>
-      </Card>
+      </Card> */}
     </div>
   );
 }
