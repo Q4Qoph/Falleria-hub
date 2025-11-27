@@ -54,7 +54,7 @@ export default function Login() {
             onClick={() => setActiveTab("student")}
             className={`flex-1 py-4 text-base font-bold rounded-lg transition-all ${
               activeTab === "student"
-                ? "bg-blue-50 text-primary shadow-md"
+                ? "bg-blue-50 text-primary"
                 : "bg-gray-100 text-gray-600 hover:bg-gray-200"
             }`}
           >
@@ -65,7 +65,7 @@ export default function Login() {
             onClick={() => setActiveTab("admin")}
             className={`flex-1 py-4 text-base font-bold rounded-lg transition-all ${
               activeTab === "admin"
-                ? "bg-blue-50 text-primary shadow-md"
+                ? "bg-blue-50 text-primary"
                 : "bg-gray-100 text-gray-600 hover:bg-gray-200"
             }`}
           >

@@ -140,7 +140,7 @@ export default function StudentDashboard() {
         {stats.applications?.length ? (
           <div className="space-y-4">
             {stats.applications.map((app: any) => (
-              <div>
+              <div key={app.applicationId}>
                 <Link
                   key={app.applicationId}
                   href={`/student/application/${app.applicationId}`}
