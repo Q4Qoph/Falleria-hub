@@ -133,7 +133,7 @@ const Applications = () => {
       <div className="space-y-4">
         {applications && applications.length > 0 ? (
           applications?.map((app: any) => (
-            <div>
+            <div key={app.applicationId}>
               <Link
                 key={app.applicationId}
                 href={`/student/application/${app.applicationId}`}

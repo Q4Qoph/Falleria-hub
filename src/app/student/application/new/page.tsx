@@ -1,8 +1,6 @@
 "use client";
 
-import type React from "react";
-
-import { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import apiClient from "@/lib/axios-client";
 import { useAuth } from "@/context/auth-context";
@@ -51,59 +49,157 @@ interface ApplicationData {
   };
 }
 
+const CACHE_KEY = "application_form_cache";
+const STEP_CACHE_KEY = "application_form_step";
+
+// Default empty form
+const getDefaultFormData = (): ApplicationData => ({
+  personalInfo: {
+    fullName: "",
+    dateOfBirth: "",
+    nationality: "",
+    passportNumber: "",
+    phone: "",
+    currentAddress: "",
+  },
+  academicHistory: {
+    highSchool: { schoolName: "", country: "", graduationYear: "", gpa: "" },
+    higherEducation: { universityName: "", degree: "", graduationYear: "", gpa: "" },
+  },
+  coursePreferences: {
+    fieldOfStudy: "",
+    preferredCountry: "",
+    preferredUniversities: [
+      { universityName: "", courseName: "" },
+      { universityName: "", courseName: "" },
+      { universityName: "", courseName: "" },
+    ],
+    intendedStartDate: "",
+  },
+  documents: {
+    passport: null,
+    transcripts: null,
+    englishProficiency: null,
+    statementOfPurpose: null,
+    resume: null,
+  },
+});
+
 export default function ApplicationForm() {
-  const [currentStep, setCurrentStep] = useState<FormStep>(1);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
   const router = useRouter();
   const { user } = useAuth();
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
-  const [formData, setFormData] = useState<ApplicationData>({
-    personalInfo: {
-      fullName: "",
-      dateOfBirth: "",
-      nationality: "",
-      passportNumber: "",
-      phone: "",
-      currentAddress: "",
-    },
-    academicHistory: {
-      highSchool: {
-        schoolName: "",
-        country: "",
-        graduationYear: "",
-        gpa: "",
-      },
-      higherEducation: {
-        universityName: "",
-        degree: "",
-        graduationYear: "",
-        gpa: "",
-      },
-    },
-    coursePreferences: {
-      fieldOfStudy: "",
-      preferredCountry: "",
-      preferredUniversities: [
-        { universityName: "", courseName: "" },
-        { universityName: "", courseName: "" },
-        { universityName: "", courseName: "" },
-      ],
-      intendedStartDate: "",
-    },
-    documents: {
-      passport: null,
-      transcripts: null,
-      englishProficiency: null,
-      statementOfPurpose: null,
-      resume: null,
-    },
+  // Initialize step from cache
+  const [currentStep, setCurrentStep] = useState<FormStep>(() => {
+    if (typeof window === "undefined") return 1;
+    try {
+      const saved = localStorage.getItem(STEP_CACHE_KEY);
+      const step = saved ? parseInt(saved, 10) : 1;
+      return step >= 1 && step <= 5 ? (step as FormStep) : 1;
+    } catch {
+      return 1;
+    }
   });
 
+  // Initialize form data from localStorage with full deep merge
+  const [formData, setFormData] = useState<ApplicationData>(() => {
+    if (typeof window === "undefined") return getDefaultFormData();
+
+    try {
+      const cached = localStorage.getItem(CACHE_KEY);
+      if (!cached) return getDefaultFormData();
+
+      const parsed = JSON.parse(cached);
+
+      return {
+        personalInfo: {
+          fullName: parsed.personalInfo?.fullName || "",
+          dateOfBirth: parsed.personalInfo?.dateOfBirth || "",
+          nationality: parsed.personalInfo?.nationality || "",
+          passportNumber: parsed.personalInfo?.passportNumber || "",
+          phone: parsed.personalInfo?.phone || "",
+          currentAddress: parsed.personalInfo?.currentAddress || "",
+        },
+        academicHistory: {
+          highSchool: {
+            schoolName: parsed.academicHistory?.highSchool?.schoolName || "",
+            country: parsed.academicHistory?.highSchool?.country || "",
+            graduationYear: parsed.academicHistory?.highSchool?.graduationYear || "",
+            gpa: parsed.academicHistory?.highSchool?.gpa || "",
+          },
+          higherEducation: {
+            universityName: parsed.academicHistory?.higherEducation?.universityName || "",
+            degree: parsed.academicHistory?.higherEducation?.degree || "",
+            graduationYear: parsed.academicHistory?.higherEducation?.graduationYear || "",
+            gpa: parsed.academicHistory?.higherEducation?.gpa || "",
+          },
+        },
+        coursePreferences: {
+          fieldOfStudy: parsed.coursePreferences?.fieldOfStudy || "",
+          preferredCountry: parsed.coursePreferences?.preferredCountry || "",
+          intendedStartDate: parsed.coursePreferences?.intendedStartDate || "",
+          preferredUniversities: Array.isArray(parsed.coursePreferences?.preferredUniversities)
+            ? parsed.coursePreferences.preferredUniversities
+                .slice(0, 3)
+                .map((u: any) => ({
+                  universityName: u.universityName || "",
+                  courseName: u.courseName || "",
+                }))
+                .concat(
+                  Array.from(
+                    { length: 3 - parsed.coursePreferences.preferredUniversities.slice(0, 3).length },
+                    () => ({ universityName: "", courseName: "" })
+                  )
+                )
+            : [
+                { universityName: "", courseName: "" },
+                { universityName: "", courseName: "" },
+                { universityName: "", courseName: "" },
+              ],
+        },
+        documents: {
+          passport: null,
+          transcripts: null,
+          englishProficiency: null,
+          statementOfPurpose: null,
+          resume: null,
+        },
+      };
+    } catch (err) {
+      console.error("Failed to load cached form data:", err);
+      return getDefaultFormData();
+    }
+  });
+
+  // Auto-save form data (excluding files)
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    try {
+      const toCache = {
+        personalInfo: formData.personalInfo,
+        academicHistory: formData.academicHistory,
+        coursePreferences: formData.coursePreferences,
+      };
+      localStorage.setItem(CACHE_KEY, JSON.stringify(toCache));
+    } catch (err) {
+      console.error("Failed to save form data to localStorage", err);
+    }
+  }, [formData]);
+
+  // Auto-save current step
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    try {
+      localStorage.setItem(STEP_CACHE_KEY, currentStep.toString());
+    } catch (err) {
+      console.error("Failed to save step", err);
+    }
+  }, [currentStep]);
+
   const handleInputChange = (
-    e: React.ChangeEvent<
-      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
-    >
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
   ) => {
     const { name, value } = e.target;
     const keys = name.split(".");
@@ -149,20 +245,21 @@ export default function ApplicationForm() {
     field: "universityName" | "courseName",
     value: string
   ) => {
-    const newUniversities = [
-      ...formData.coursePreferences.preferredUniversities,
-    ];
-    newUniversities[index] = {
-      ...newUniversities[index],
-      [field]: value,
-    };
     setFormData((prev) => ({
       ...prev,
       coursePreferences: {
         ...prev.coursePreferences,
-        preferredUniversities: newUniversities,
+        preferredUniversities: prev.coursePreferences.preferredUniversities.map((uni, i) =>
+          i === index ? { ...uni, [field]: value } : uni
+        ),
       },
     }));
+  };
+
+  const clearCache = () => {
+    if (typeof window === "undefined") return;
+    localStorage.removeItem(CACHE_KEY);
+    localStorage.removeItem(STEP_CACHE_KEY);
   };
 
   const handleSubmit = async () => {
@@ -172,28 +269,21 @@ export default function ApplicationForm() {
     try {
       const formDataToSend = new FormData();
 
-      // Prepare the payload matching the required structure
       const payload = {
         personalInfo: formData.personalInfo,
         academicHistory: {
           highSchool: {
             schoolName: formData.academicHistory.highSchool.schoolName,
             country: formData.academicHistory.highSchool.country,
-            graduationYear:
-              parseInt(formData.academicHistory.highSchool.graduationYear) || 0,
+            graduationYear: parseInt(formData.academicHistory.highSchool.graduationYear) || 0,
             gpa: formData.academicHistory.highSchool.gpa,
           },
-          higherEducation: formData.academicHistory.higherEducation
-            .universityName
+          higherEducation: formData.academicHistory.higherEducation.universityName
             ? [
                 {
-                  universityName:
-                    formData.academicHistory.higherEducation.universityName,
+                  universityName: formData.academicHistory.higherEducation.universityName,
                   degree: formData.academicHistory.higherEducation.degree,
-                  graduationYear:
-                    parseInt(
-                      formData.academicHistory.higherEducation.graduationYear
-                    ) || 0,
+                  graduationYear: parseInt(formData.academicHistory.higherEducation.graduationYear) || 0,
                   gpa: formData.academicHistory.higherEducation.gpa,
                 },
               ]
@@ -202,45 +292,31 @@ export default function ApplicationForm() {
         coursePreferences: {
           fieldOfStudy: formData.coursePreferences.fieldOfStudy,
           preferredCountry: formData.coursePreferences.preferredCountry,
-          preferredUniversities:
-            formData.coursePreferences.preferredUniversities.filter(
-              (u) => u.universityName && u.courseName
-            ),
+          preferredUniversities: formData.coursePreferences.preferredUniversities.filter(
+            (u) => u.universityName && u.courseName
+          ),
           intendedStartDate: formData.coursePreferences.intendedStartDate,
         },
       };
 
-      // Add JSON payload as a string field
       formDataToSend.append("data", JSON.stringify(payload));
 
-      // Add files
-      if (formData.documents.passport)
-        formDataToSend.append("passport", formData.documents.passport);
-      if (formData.documents.transcripts)
-        formDataToSend.append("transcripts", formData.documents.transcripts);
-      if (formData.documents.englishProficiency)
-        formDataToSend.append(
-          "englishProficiency",
-          formData.documents.englishProficiency
-        );
-      if (formData.documents.statementOfPurpose)
-        formDataToSend.append(
-          "statementOfPurpose",
-          formData.documents.statementOfPurpose
-        );
-      if (formData.documents.resume)
-        formDataToSend.append("resume", formData.documents.resume);
+      if (formData.documents.passport) formDataToSend.append("passport", formData.documents.passport);
+      if (formData.documents.transcripts) formDataToSend.append("transcripts", formData.documents.transcripts);
+      if (formData.documents.englishProficiency) formDataToSend.append("englishProficiency", formData.documents.englishProficiency);
+      if (formData.documents.statementOfPurpose) formDataToSend.append("statementOfPurpose", formData.documents.statementOfPurpose);
+      if (formData.documents.resume) formDataToSend.append("resume", formData.documents.resume);
 
       const response = await apiClient.post("/applications", formDataToSend, {
         headers: { "Content-Type": "multipart/form-data" },
       });
 
-      // Initiate checkout after successful application submission
+      clearCache();
+
       const checkoutResponse = await apiClient.post("/payments/checkout", {
         appId: response.data.applicationId,
       });
 
-      // Redirect to Stripe checkout
       if (checkoutResponse.data.url) {
         window.location.href = checkoutResponse.data.url;
       } else {
@@ -288,7 +364,9 @@ export default function ApplicationForm() {
               placeholder="Passport Number"
               value={formData.personalInfo.passportNumber}
               onChange={handleInputChange}
-              className="w-full px-4 py-3 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+              className="w-full px-4
+
+              py-3 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
             />
             <input
               type="tel"
@@ -315,9 +393,7 @@ export default function ApplicationForm() {
             <h2 className="text-2xl font-bold mb-6">Academic History</h2>
 
             <div className="border-t pt-6">
-              <h3 className="text-lg font-semibold mb-4">
-                High School / Secondary Education
-              </h3>
+              <h3 className="text-lg font-semibold mb-4">High School / Secondary Education</h3>
               <div className="space-y-4">
                 <input
                   type="text"
@@ -355,17 +431,13 @@ export default function ApplicationForm() {
             </div>
 
             <div className="border-t pt-6">
-              <h3 className="text-lg font-semibold mb-4">
-                Higher Education (if applicable)
-              </h3>
+              <h3 className="text-lg font-semibold mb-4">Higher Education (if applicable)</h3>
               <div className="space-y-4">
                 <input
                   type="text"
                   name="academicHistory.higherEducation.universityName"
                   placeholder="University Name"
-                  value={
-                    formData.academicHistory.higherEducation.universityName
-                  }
+                  value={formData.academicHistory.higherEducation.universityName}
                   onChange={handleInputChange}
                   className="w-full px-4 py-3 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
                 />
@@ -381,9 +453,7 @@ export default function ApplicationForm() {
                   type="text"
                   name="academicHistory.higherEducation.graduationYear"
                   placeholder="Graduation Year"
-                  value={
-                    formData.academicHistory.higherEducation.graduationYear
-                  }
+                  value={formData.academicHistory.higherEducation.graduationYear}
                   onChange={handleInputChange}
                   className="w-full px-4 py-3 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
                 />
@@ -438,43 +508,22 @@ export default function ApplicationForm() {
             </select>
 
             <div className="border-t pt-6">
-              <h3 className="text-lg font-semibold mb-4">
-                Preferred Universities (up to 3)
-              </h3>
+              <h3 className="text-lg font-semibold mb-4">Preferred Universities (up to 3)</h3>
               {[0, 1, 2].map((idx) => (
-                <div
-                  key={idx}
-                  className="mb-4 p-4 border border-border rounded-lg"
-                >
-                  <p className="text-sm font-semibold mb-2">
-                    University {idx + 1}
-                  </p>
+                <div key={idx} className="mb-4 p-4 border border-border rounded-lg">
+                  <p className="text-sm font-semibold mb-2">University {idx + 1}</p>
                   <input
                     type="text"
                     placeholder="University Name"
-                    value={
-                      formData.coursePreferences.preferredUniversities[idx]
-                        .universityName
-                    }
-                    onChange={(e) =>
-                      handleUniversityChange(
-                        idx,
-                        "universityName",
-                        e.target.value
-                      )
-                    }
+                    value={formData.coursePreferences.preferredUniversities[idx].universityName}
+                    onChange={(e) => handleUniversityChange(idx, "universityName", e.target.value)}
                     className="w-full px-4 py-3 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary mb-2"
                   />
                   <input
                     type="text"
                     placeholder="Course Name"
-                    value={
-                      formData.coursePreferences.preferredUniversities[idx]
-                        .courseName
-                    }
-                    onChange={(e) =>
-                      handleUniversityChange(idx, "courseName", e.target.value)
-                    }
+                    value={formData.coursePreferences.preferredUniversities[idx].courseName}
+                    onChange={(e) => handleUniversityChange(idx, "courseName", e.target.value)}
                     className="w-full px-4 py-3 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
                   />
                 </div>
@@ -482,9 +531,7 @@ export default function ApplicationForm() {
             </div>
 
             <div>
-              <label className="block text-sm font-semibold mb-2">
-                Intended Start Date
-              </label>
+              <label className="block text-sm font-semibold mb-2">Intended Start Date</label>
               <input
                 type="date"
                 name="coursePreferences.intendedStartDate"
@@ -500,34 +547,21 @@ export default function ApplicationForm() {
         return (
           <div className="space-y-4">
             <h2 className="text-2xl font-bold mb-6">Document Upload</h2>
-            <p className="text-secondary text-sm mb-6">
-              Upload all required documents (PDF, JPG, DOCX)
+            <p className="text-secondary text-sm mb-6">Upload all required documents (PDF, JPG, DOCX)</p>
+            <p className="text-amber-600 text-sm mb-6 p-3 bg-amber-50 rounded-lg">
+              Note: Files cannot be cached and will need to be re-uploaded if you refresh the page.
             </p>
 
             {[
               { key: "passport", label: "Passport Scanned Copy" },
-              {
-                key: "transcripts",
-                label: "Academic Transcripts / Certificates",
-              },
-              {
-                key: "englishProficiency",
-                label: "Proof of English Proficiency (IELTS/TOEFL)",
-              },
-              {
-                key: "statementOfPurpose",
-                label: "Statement of Purpose / Personal Essay",
-              },
+              { key: "transcripts", label: "Academic Transcripts / Certificates" },
+              { key: "englishProficiency", label: "Proof of English Proficiency (IELTS/TOEFL)" },
+              { key: "statementOfPurpose", label: "Statement of Purpose / Personal Essay" },
               { key: "resume", label: "Resume / CV" },
             ].map((doc) => (
-              <div
-                key={doc.key}
-                className="border-2 border-dashed border-border rounded-lg p-4"
-              >
+              <div key={doc.key} className="border-2 border-dashed border-border rounded-lg p-4">
                 <label className="block">
-                  <span className="text-sm font-semibold text-foreground mb-2 block">
-                    {doc.label}
-                  </span>
+                  <span className="text-sm font-semibold text-foreground mb-2 block">{doc.label}</span>
                   <input
                     type="file"
                     name={doc.key}
@@ -535,17 +569,9 @@ export default function ApplicationForm() {
                     accept=".pdf,.jpg,.jpeg,.docx,.doc"
                     className="w-full"
                   />
-                  {formData.documents[
-                    doc.key as keyof typeof formData.documents
-                  ] && (
+                  {formData.documents[doc.key as keyof typeof formData.documents] && (
                     <p className="text-sm text-green-600 mt-2">
-                      {
-                        (
-                          formData.documents[
-                            doc.key as keyof typeof formData.documents
-                          ] as File
-                        )?.name
-                      }
+                      {(formData.documents[doc.key as keyof typeof formData.documents] as File)?.name}
                     </p>
                   )}
                 </label>
@@ -562,7 +588,7 @@ export default function ApplicationForm() {
             <div className="bg-neutral-50 p-6 rounded-lg space-y-4">
               <div>
                 <h3 className="font-semibold mb-2">Personal Information</h3>
-                <p className="text-sm text-muted-foreground ">
+                <p className="text-sm text-muted-foreground">
                   Name: {formData.personalInfo.fullName}
                   <br />
                   DOB: {formData.personalInfo.dateOfBirth}
@@ -573,7 +599,7 @@ export default function ApplicationForm() {
 
               <div className="border-t pt-4">
                 <h3 className="font-semibold mb-2">Academic History</h3>
-                <p className="text-sm text-muted-foreground ">
+                <p className="text-sm text-muted-foreground">
                   High School: {formData.academicHistory.highSchool.schoolName}
                   <br />
                   GPA: {formData.academicHistory.highSchool.gpa}
@@ -582,7 +608,7 @@ export default function ApplicationForm() {
 
               <div className="border-t pt-4">
                 <h3 className="font-semibold mb-2">Course Preferences</h3>
-                <p className="text-sm text-muted-foreground ">
+                <p className="text-sm text-muted-foreground">
                   Field: {formData.coursePreferences.fieldOfStudy}
                   <br />
                   Country: {formData.coursePreferences.preferredCountry}
@@ -597,9 +623,8 @@ export default function ApplicationForm() {
 
               <div className="border-t pt-4">
                 <h3 className="font-semibold mb-2">Documents</h3>
-                <p className="text-sm text-muted-foreground a">
-                  {Object.values(formData.documents).filter((d) => d).length} of
-                  5 documents uploaded
+                <p className="text-sm text-muted-foreground">
+                  {Object.values(formData.documents).filter((d) => d).length} of 5 documents uploaded
                 </p>
               </div>
             </div>
@@ -614,24 +639,18 @@ export default function ApplicationForm() {
   return (
     <div className="min-h-screen py-12 px-4 w-full">
       <div className="">
-        {/* Progress Bar */}
         <div className="mb-8">
           <div className="flex justify-between mb-4">
             {[1, 2, 3, 4, 5].map((step) => (
               <div
                 key={step}
-                className={`flex-1 h-2 mx-1 rounded-full ${
-                  step <= currentStep ? "bg-primary" : "bg-border"
-                }`}
+                className={`flex-1 h-2 mx-1 rounded-full ${step <= currentStep ? "bg-primary" : "bg-border"}`}
               />
             ))}
           </div>
-          <p className="text-center text-sm text-muted-foreground">
-            Step {currentStep} of 5
-          </p>
+          <p className="text-center text-sm text-muted-foreground">Step {currentStep} of 5</p>
         </div>
 
-        {/* Form Card */}
         <div className="bg-white rounded-lg mb-8">
           {error && (
             <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
@@ -642,13 +661,10 @@ export default function ApplicationForm() {
           {renderStep()}
         </div>
 
-        {/* Navigation Buttons */}
         <div className="flex gap-4">
           <Button
             variant="outline"
-            onClick={() =>
-              setCurrentStep((prev) => Math.max(1, prev - 1) as FormStep)
-            }
+            onClick={() => setCurrentStep((prev) => Math.max(1, prev - 1) as FormStep)}
             disabled={currentStep === 1}
             className="flex-1 px-6 py-3 border border-border rounded-lg font-semibold hover:bg-neutral-50 disabled:opacity-50 transition"
           >
@@ -657,9 +673,7 @@ export default function ApplicationForm() {
 
           {currentStep < 5 ? (
             <Button
-              onClick={() =>
-                setCurrentStep((prev) => Math.min(5, prev + 1) as FormStep)
-              }
+              onClick={() => setCurrentStep((prev) => Math.min(5, prev + 1) as FormStep)}
               className="flex-1 btn-primary"
             >
               Next
