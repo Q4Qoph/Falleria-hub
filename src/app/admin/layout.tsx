@@ -85,21 +85,23 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
         "
       >
         <div className="p-6 border-b border-gray-200">
-          <div className="flex items-center gap-3">
-            <div className="w-14 h-14 rounded-lg overflow-hidden flex items-center justify-center">
-              <Image
-                src="/logo.png"
-                alt=""
-                width={70}
-                height={70}
-                className="object-cover"
-              />
+          <Link href="/">
+            <div className="flex items-center gap-3">
+              <div className="w-14 h-14 rounded-lg overflow-hidden flex items-center justify-center">
+                <Image
+                  src="/logo.png"
+                  alt=""
+                  width={70}
+                  height={70}
+                  className="object-cover"
+                />
+              </div>
+              <div>
+                <h2 className="font-bold text-lg">FALLERIA </h2>
+                <p className="text-sm text-gray-500">Hub International</p>
+              </div>
             </div>
-            <div>
-              <h2 className="font-bold text-lg">FALLERIA </h2>
-              <p className="text-sm text-gray-500">Hub International</p>
-            </div>
-          </div>
+          </Link>
         </div>
         {/* Logo / Header */}
         {/* <div className="p-6 border-b border-gray-200">
@@ -137,19 +139,19 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
             );
           })}
           {user?.role === "admin" && (
-    <Link
-      href="/admin/users"
-      className={cn(
-        "flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 hover:bg-gray-100",
-        pathname.startsWith("/admin/users")
-          ? "bg-[#E8E6FF] text-primary font-semibold"
-          : "text-gray-800"
-      )}
-    >
-      <Users className="w-5 h-5" />
-      <span>Users</span>
-    </Link>
-  )}
+            <Link
+              href="/admin/users"
+              className={cn(
+                "flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 hover:bg-gray-100",
+                pathname.startsWith("/admin/users")
+                  ? "bg-[#E8E6FF] text-primary font-semibold"
+                  : "text-gray-800"
+              )}
+            >
+              <Users className="w-5 h-5" />
+              <span>Users</span>
+            </Link>
+          )}
         </nav>
 
         {/* Footer Section */}

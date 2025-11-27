@@ -55,21 +55,23 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
       >
         {/* Logo Section */}
         <div className="p-6 border-b border-gray-200">
-          <div className="flex items-center gap-3">
-            <div className="w-14 h-14 rounded-lg overflow-hidden flex items-center justify-center">
-              <Image
-                src="/logo.png"
-                alt=""
-                width={70}
-                height={70}
-                className="object-cover"
-              />
+          <Link href="/">
+            <div className="flex items-center gap-3">
+              <div className="w-14 h-14 rounded-lg overflow-hidden flex items-center justify-center">
+                <Image
+                  src="/logo.png"
+                  alt=""
+                  width={70}
+                  height={70}
+                  className="object-cover"
+                />
+              </div>
+              <div>
+                <h2 className="font-bold text-lg">FALLERIA </h2>
+                <p className="text-sm text-gray-500">Hub International</p>
+              </div>
             </div>
-            <div>
-              <h2 className="font-bold text-lg">FALLERIA </h2>
-              <p className="text-sm text-gray-500">Hub International</p>
-            </div>
-          </div>
+          </Link>
         </div>
 
         {/* Navigation Links */}
