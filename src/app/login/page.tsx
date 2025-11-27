@@ -1,7 +1,6 @@
 "use client";
 
 import type React from "react";
-
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -9,6 +8,7 @@ import { useAuth } from "@/context/auth-context";
 import { Button } from "@/components/ui/button";
 
 export default function Login() {
+  const [activeTab, setActiveTab] = useState<"admin" | "student">("student");
   const [formData, setFormData] = useState({ email: "", password: "" });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -25,7 +25,8 @@ export default function Login() {
     setLoading(true);
 
     try {
-      await login(formData.email, formData.password);
+      // Pass the selected tab to the login function
+      await login(formData.email, formData.password, activeTab);
     } catch (err: any) {
       setError(
         err.response?.data?.message ||
@@ -43,7 +44,33 @@ export default function Login() {
           <h1 className="text-3xl font-bold text-foreground mb-2">
             Welcome Back
           </h1>
-          <p className="text-sm text-muted-foreground ">Login to your account</p>
+          <p className="text-sm text-muted-foreground">Login to your account</p>
+        </div>
+
+        {/* Tabs */}
+        <div className="flex gap-2 mb-6">
+          <button
+            type="button"
+            onClick={() => setActiveTab("student")}
+            className={`flex-1 py-4 text-base font-bold rounded-lg transition-all ${
+              activeTab === "student"
+                ? "bg-blue-50 text-primary shadow-md"
+                : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+            }`}
+          >
+            Student Login
+          </button>
+          <button
+            type="button"
+            onClick={() => setActiveTab("admin")}
+            className={`flex-1 py-4 text-base font-bold rounded-lg transition-all ${
+              activeTab === "admin"
+                ? "bg-blue-50 text-primary shadow-md"
+                : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+            }`}
+          >
+            Admin Login
+          </button>
         </div>
 
         {error && (
@@ -77,14 +104,14 @@ export default function Login() {
             type="submit"
             size="lg"
             disabled={loading}
-            className="w-full btn-primary disabled:opacity-50 py-3"
+            className="w-full btn-primary disabled:opacity-80 py-3"
           >
-            {loading ? "Logging in..." : "Login"}
+            {loading ? "Logging in..." : `Login as ${activeTab === "admin" ? "Admin" : "Student"}`}
           </Button>
         </form>
 
         <div className="mt-6 space-y-3">
-          <p className="text-center text-muted-foreground ">
+          <p className="text-center text-muted-foreground">
             Don't have an account?{" "}
             <Link
               href="/signup"
@@ -93,11 +120,6 @@ export default function Login() {
               Sign up
             </Link>
           </p>
-          {/* <p className="text-center">
-            <Link href="#" className="text-primary text-sm hover:underline">
-              Forgot password?
-            </Link>
-          </p> */}
         </div>
       </div>
     </div>
