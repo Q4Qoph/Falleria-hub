@@ -20,10 +20,10 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
   const router = useRouter();
 
   useEffect(() => {
-    if (!loading && (!isAuthenticated || user?.role !== "student")) {
+    if (!loading && !isAuthenticated) {
       router.push("/login");
     }
-  }, [isAuthenticated, loading, user, router]);
+  }, [isAuthenticated, loading, router]);
 
   const navigation = [
     { name: "Dashboard", href: "/student/dashboard", icon: LayoutDashboard },

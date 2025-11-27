@@ -8,18 +8,19 @@ import {
   useEffect,
   type ReactNode,
 } from "react";
+import { toast } from "sonner";
 
 interface User {
   id: string;
   email: string;
   firstName: string;
-  role: "student" | "admin" | 'counsellor';
+  role: "student" | "admin" | "counsellor";
 }
 
 interface AuthContextType {
   user: User | null;
   isLoading: boolean;
-  login: (email: string, password: string) => Promise<void>;
+  login: (email: string, password: string, activeTab: string) => Promise<void>;
   signup: (
     firstName: string,
     lastName: string,
@@ -51,7 +52,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setIsLoading(false);
   }, []);
 
-  const login = async (email: string, password: string) => {
+  const login = async (email: string, password: string, loginAs: string) => {
     setIsLoading(true);
     try {
       const response = await fetch(
@@ -73,13 +74,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       localStorage.setItem("user", JSON.stringify(data.user));
       localStorage.setItem("authToken", data.token);
-
-      if (user.role === "admin" || user.role === "counsellor") {
+      if (
+        loginAs === "admin" &&
+        (user.role === "admin" || user.role === "counsellor")
+      ) {
         router.push("/admin/dashboard");
-      } else if (user.role === "student") {
+      } else if (loginAs === "admin" && user.role === "student") {
+        toast.error(
+          "You don't have admin privileges. Redirecting to student dashboard."
+        );
+        router.push("/student/dashboard");
+      } else if (loginAs === "student" || user.role === "student") {
         router.push("/student/dashboard");
       } else {
-        router.push("/signup"); // fallback if role is unknown
+        router.push("/signup");
       }
     } finally {
       setIsLoading(false);

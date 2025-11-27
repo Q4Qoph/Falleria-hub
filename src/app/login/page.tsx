@@ -25,7 +25,8 @@ export default function Login() {
     setLoading(true);
 
     try {
-      await login(formData.email, formData.password);
+      // Pass the selected tab to the login function
+      await login(formData.email, formData.password, activeTab);
     } catch (err: any) {
       setError(
         err.response?.data?.message ||
@@ -64,7 +65,7 @@ export default function Login() {
             onClick={() => setActiveTab("admin")}
             className={`flex-1 py-4 text-base font-bold rounded-lg transition-all ${
               activeTab === "admin"
-                ? "bg-blue-50 text-primary"
+                ? "bg-blue-50 text-primary shadow-md"
                 : "bg-gray-100 text-gray-600 hover:bg-gray-200"
             }`}
           >
