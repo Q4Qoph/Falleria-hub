@@ -56,9 +56,9 @@ const Navbar = () => {
             <Button
               variant="default"
               size="default"
-              onClick={() => router.push("/signup")}
+              onClick={() => router.push("/login")}
             >
-              Get Started
+              Login
             </Button>
           </div>
 
@@ -67,7 +67,11 @@ const Navbar = () => {
             className="md:hidden text-foreground"
             onClick={() => setIsMenuOpen(!isMenuOpen)}
           >
-            {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+            {isMenuOpen ? (
+              <X className="h-6 w-6" />
+            ) : (
+              <Menu className="h-6 w-6" />
+            )}
           </button>
         </div>
 
@@ -102,9 +106,9 @@ const Navbar = () => {
               <Button
                 variant="default"
                 className="w-full"
-                onClick={() => router.push("/signup")}
+                onClick={() => router.push("/login")}
               >
-                Get Started
+                Login
               </Button>
             </div>
           </div>
@@ -113,6 +117,5 @@ const Navbar = () => {
     </nav>
   );
 };
-
 
 export default Navbar;

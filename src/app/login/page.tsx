@@ -106,7 +106,9 @@ export default function Login() {
             disabled={loading}
             className="w-full btn-primary disabled:opacity-80 py-3"
           >
-            {loading ? "Logging in..." : `Login as ${activeTab === "admin" ? "Admin" : "Student"}`}
+            {loading
+              ? "Logging in..."
+              : `Login as ${activeTab === "admin" ? "Admin" : "Student"}`}
           </Button>
         </form>
 
@@ -120,6 +122,11 @@ export default function Login() {
               Sign up
             </Link>
           </p>
+        </div>
+        <div className="mt-4 text-center">
+          <Link href="/" className="text-primary font-semibold hover:underline">
+            ← Back to Home
+          </Link>
         </div>
       </div>
     </div>

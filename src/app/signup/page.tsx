@@ -146,6 +146,11 @@ export default function SignUp() {
             Login
           </Link>
         </p>
+        <div className="mt-4 text-center">
+          <Link href="/" className="text-primary font-semibold hover:underline">
+            ← Back to Home
+          </Link>
+        </div>
       </div>
     </div>
   );
