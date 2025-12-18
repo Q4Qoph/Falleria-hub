@@ -53,12 +53,18 @@ const Navbar = () => {
             >
               Why Us
             </button>
+            <button
+            onClick={() => router.push("/login")}
+            className="text-foreground hover:text-primary transition-colors font-medium"
+            >
+              Login
+            </button>
             <Button
               variant="default"
               size="default"
-              onClick={() => router.push("/login")}
+              onClick={() => router.push("/signup")}
             >
-              Login
+              Get Started
             </Button>
           </div>
 
