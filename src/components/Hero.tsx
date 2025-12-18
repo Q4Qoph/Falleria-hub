@@ -5,6 +5,7 @@ import { ArrowRight } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import Image from "next/image";
+import { hr } from "date-fns/locale";
 
 export default function Hero() {
   const [isVisible, setIsVisible] = useState(false);
@@ -18,21 +19,25 @@ export default function Hero() {
       name: "United States",
       image: "/modern-university-campus-in-usa-with-students.jpg",
       universities: "200+ Universities",
+      href: "/study-in-the-us",
     },
     {
       name: "United Kingdom",
       image: "/historic-university-building-oxford-cambridge-styl.jpg",
       universities: "150+ Universities",
+      href: "/study-in-the-uk",
     },
     {
       name: "Canada",
       image: "/modern-canadian-university-campus-with-snow.jpg",
       universities: "100+ Universities",
+      href: "/study-in-the-canada",
     },
     {
       name: "Australia",
       image: "/sunny-australian-university-campus-with-modern-arc.jpg",
       universities: "80+ Universities",
+      href: "/study-in-the-australia",
     },
   ];
 
@@ -45,7 +50,7 @@ export default function Hero() {
             src="/front-view-friends-checking-menu_23-2148212381.jpg"
             alt="Students studying abroad"
             fill
-             className="object-cover  -scale-x-100"
+            className="object-cover  -scale-x-100"
             priority
           />
           <div
@@ -143,7 +148,8 @@ export default function Hero() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {destinations.map((dest, idx) => (
-              <div
+              <Link
+                href={dest.href}
                 key={idx}
                 className={`group relative overflow-hidden rounded-2xl transition-all duration-1000 ${
                   isVisible
@@ -168,7 +174,7 @@ export default function Hero() {
                   </h3>
                   <p className="text-sm text-white/80">{dest.universities}</p>
                 </div>
-              </div>
+              </Link>
             ))}
           </div>
         </div>
@@ -187,29 +193,47 @@ export default function Hero() {
               <h2 className="text-4xl md:text-5xl font-bold mb-6 text-gray-900">
                 Expert Guidance Every Step
               </h2>
-              <p className="text-lg text-gray-600 mb-8">
-                Our experienced mentors provide personalized support throughout
-                your entire application journey.
+              <p className="text-lg text-gray-600 mb-8 leading-relaxed">
+                Navigate your study abroad journey with confidence. Our
+                certified counselors bring decades of experience helping
+                students secure placements at top universities worldwide. From
+                selecting the perfect program to visa approval, we're with you
+                at every milestone.
               </p>
               <div className="space-y-4">
                 {[
-                  "Profile Building",
-                  "Application Strategy",
-                  "Interview Prep",
-                  "Visa Assistance",
+                  {
+                    title: "Personalized Profile Building",
+                    desc: "Strengthen your application with expert profile assessment",
+                  },
+                  {
+                    title: "Strategic Application Planning",
+                    desc: "Maximize acceptance chances with data-driven strategies",
+                  },
+                  {
+                    title: "Interview & Test Preparation",
+                    desc: "Excel in admissions interviews and standardized tests",
+                  },
+                  {
+                    title: "End-to-End Visa Support",
+                    desc: "98% visa success rate with comprehensive documentation help",
+                  },
                 ].map((item) => (
-                  <div key={item} className="flex items-center gap-3">
-                    <div className="w-2 h-2 rounded-full bg-[#1A0BF4]" />
-                    <span className="text-lg font-medium text-gray-900">
-                      {item}
-                    </span>
+                  <div key={item.title} className="flex items-start gap-3">
+                    <div className="w-2 h-2 rounded-full bg-[#1A0BF4] mt-2 shrink-0" />
+                    <div>
+                      <span className="text-lg font-semibold text-gray-900 block">
+                        {item.title}
+                      </span>
+                      <span className="text-sm text-gray-600">{item.desc}</span>
+                    </div>
                   </div>
                 ))}
               </div>
             </div>
             <div className="relative h-96 rounded-2xl overflow-hidden shadow-xl">
               <Image
-                 src="/group-friends-planning-trip-cafe .jpg"
+                src="/group-friends-planning-trip-cafe .jpg"
                 alt="Expert guidance"
                 fill
                 className="object-cover"
@@ -236,22 +260,39 @@ export default function Hero() {
               <h2 className="text-4xl md:text-5xl font-bold mb-6 text-gray-900">
                 Join a Global Community
               </h2>
-              <p className="text-lg text-gray-600 mb-8">
-                Connect with thousands of students pursuing their dreams at
-                universities worldwide.
+              <p className="text-lg text-gray-600 mb-8 leading-relaxed">
+                You're never alone on your journey. Connect with over 10,000+
+                students and alumni who've transformed their futures through
+                international education. Access exclusive networks, mentorship
+                programs, and lifelong friendships that span continents.
               </p>
               <div className="space-y-4">
                 {[
-                  "Peer Support Network",
-                  "Alumni Connections",
-                  "Study Groups",
-                  "Career Guidance",
+                  {
+                    title: "Active Peer Support Network",
+                    desc: "Connect with current students at your dream universities",
+                  },
+                  {
+                    title: "Global Alumni Connections",
+                    desc: "Tap into our network of 15,000+ successful graduates",
+                  },
+                  {
+                    title: "Country-Specific Study Groups",
+                    desc: "Join cohorts heading to your destination for shared learning",
+                  },
+                  {
+                    title: "Career Development Support",
+                    desc: "Access internships, job placements, and career mentoring",
+                  },
                 ].map((item) => (
-                  <div key={item} className="flex items-center gap-3">
-                    <div className="w-2 h-2 rounded-full bg-[#1A0BF4]" />
-                    <span className="text-lg font-medium text-gray-900">
-                      {item}
-                    </span>
+                  <div key={item.title} className="flex items-start gap-3">
+                    <div className="w-2 h-2 rounded-full bg-[#1A0BF4] mt-2 shrink-0" />
+                    <div>
+                      <span className="text-lg font-semibold text-gray-900 block">
+                        {item.title}
+                      </span>
+                      <span className="text-sm text-gray-600">{item.desc}</span>
+                    </div>
                   </div>
                 ))}
               </div>
