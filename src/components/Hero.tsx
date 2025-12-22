@@ -1,18 +1,17 @@
-"use client";
+"use client"
 
-import { Button } from "@/components/ui/button";
-import { ArrowRight } from "lucide-react";
-import Link from "next/link";
-import { useEffect, useState } from "react";
-import Image from "next/image";
-import { hr } from "date-fns/locale";
+import { Button } from "@/components/ui/button"
+import { ArrowRight } from "lucide-react"
+import Link from "next/link"
+import { useEffect, useState } from "react"
+import Image from "next/image"
 
 export default function Hero() {
-  const [isVisible, setIsVisible] = useState(false);
+  const [isVisible, setIsVisible] = useState(false)
 
   useEffect(() => {
-    setIsVisible(true);
-  }, []);
+    setIsVisible(true)
+  }, [])
 
   const destinations = [
     {
@@ -39,7 +38,25 @@ export default function Hero() {
       universities: "80+ Universities",
       href: "/study-in-the-australia",
     },
-  ];
+    {
+      name: "New Zealand",
+      image: "/beautiful-new-zealand-university-campus-mountains-.jpg",
+      universities: "50+ Universities",
+      href: "/study-in-new-zealand",
+    },
+    {
+      name: "Ireland",
+      image: "/trinity-college-dublin-ireland-historic-university.jpg",
+      universities: "40+ Universities",
+      href: "/study-in-ireland",
+    },
+    {
+      name: "Germany",
+      image: "/modern-german-university-campus-heidelberg-munich.jpg",
+      universities: "75+ Universities",
+      href: "/study-in-germany",
+    },
+  ]
 
   return (
     <section id="home" className="relative overflow-hidden">
@@ -56,8 +73,7 @@ export default function Hero() {
           <div
             className="absolute inset-0 bg-black/80"
             style={{
-              background:
-                "linear-gradient(to right, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.6) 50%, transparent 100%)",
+              background: "linear-gradient(to right, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.6) 50%, transparent 100%)",
             }}
           />
         </div>
@@ -70,8 +86,7 @@ export default function Hero() {
               <span
                 className="block text-transparent bg-clip-text"
                 style={{
-                  backgroundImage:
-                    "linear-gradient(135deg,#00BF48 0%, #1A0BF4  100%)",
+                  backgroundImage: "linear-gradient(135deg,#00BF48 0%, #1A0BF4  100%)",
                 }}
               >
                 Global Education
@@ -80,9 +95,8 @@ export default function Hero() {
             </h1>
 
             <p className="text-xl md:text-2xl text-gray-300 mb-8 leading-relaxed drop-shadow-sm">
-              Expert guidance for international university admissions. We
-              simplify the process and help you achieve your dreams of studying
-              abroad.
+              Expert guidance for international university admissions. We simplify the process and help you achieve your
+              dreams of studying abroad.
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4">
@@ -94,10 +108,10 @@ export default function Hero() {
               </Link>
               <button
                 onClick={() => {
-                  const element = document.getElementById("contact");
-                  element?.scrollIntoView({ behavior: "smooth" });
+                  const element = document.getElementById("contact")
+                  element?.scrollIntoView({ behavior: "smooth" })
                 }}
-                className="inline-flex items-center justify-center h-10 px-8 rounded-lg text-base text-white font-medium border-2 backdrop-blur-sm hover:bg-accent hover:border-primary/50 transition-all"
+                className="inline-flex items-center justify-center h-10 px-8 rounded-lg text-base text-white font-medium border backdrop-blur-sm hover:bg-accent hover:border-primary/50 transition-all"
               >
                 Contact Us
               </button>
@@ -106,28 +120,16 @@ export default function Hero() {
             {/* Stats */}
             <div className="grid grid-cols-3 gap-8 mt-12 pt-8 border-t border-border/50">
               <div>
-                <div className="text-3xl md:text-4xl font-bold text-secondary">
-                  500+
-                </div>
-                <div className="text-sm text-muted-foreground mt-1">
-                  Partner Universities
-                </div>
+                <div className="text-3xl md:text-4xl font-bold text-secondary">500+</div>
+                <div className="text-sm text-muted-foreground mt-1">Partner Universities</div>
               </div>
               <div>
-                <div className="text-3xl md:text-4xl font-bold text-secondary">
-                  98%
-                </div>
-                <div className="text-sm text-muted-foreground mt-1">
-                  Success Rate
-                </div>
+                <div className="text-3xl md:text-4xl font-bold text-secondary">98%</div>
+                <div className="text-sm text-muted-foreground mt-1">Success Rate</div>
               </div>
               <div>
-                <div className="text-3xl md:text-4xl font-bold text-secondary">
-                  50+
-                </div>
-                <div className="text-sm text-muted-foreground mt-1">
-                  Countries
-                </div>
+                <div className="text-3xl md:text-4xl font-bold text-secondary">50+</div>
+                <div className="text-sm text-muted-foreground mt-1">Countries</div>
               </div>
             </div>
           </div>
@@ -137,24 +139,19 @@ export default function Hero() {
       <section id="destinations" className="py-20 bg-white">
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-bold mb-4 text-gray-900">
-              Study in Your Dream Destination
-            </h2>
+            <h2 className="text-4xl md:text-5xl font-bold mb-4 text-gray-900">Study in Your Dream Destination</h2>
             <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-              Explore top universities across the globe and find the perfect fit
-              for your academic journey
+              Explore top universities across the globe and find the perfect fit for your academic journey
             </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {destinations.map((dest, idx) => (
               <Link
-                href={dest.href}
                 key={idx}
-                className={`group relative overflow-hidden rounded-2xl transition-all duration-1000 ${
-                  isVisible
-                    ? "opacity-100 translate-y-0"
-                    : "opacity-0 translate-y-10"
+                href={dest.href}
+                className={`group relative overflow-hidden rounded-2xl transition-all duration-1000 hover:scale-105 ${
+                  isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
                 }`}
                 style={{ transitionDelay: `${idx * 100}ms` }}
               >
@@ -165,13 +162,11 @@ export default function Hero() {
                     fill
                     className="object-cover group-hover:scale-110 transition-transform duration-500"
                   />
-                  <div className="absolute inset-0 bg-black/70" />
+                  <div className="absolute inset-0 bg-black/70 group-hover:bg-black/60 transition-colors" />
                 </div>
 
                 <div className="absolute inset-0 flex flex-col justify-end p-6">
-                  <h3 className="text-2xl font-bold text-white mb-2">
-                    {dest.name}
-                  </h3>
+                  <h3 className="text-2xl font-bold text-white mb-2">{dest.name}</h3>
                   <p className="text-sm text-white/80">{dest.universities}</p>
                 </div>
               </Link>
@@ -185,115 +180,110 @@ export default function Hero() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center mb-20">
             <div
               className={`transition-all duration-1000 ${
-                isVisible
-                  ? "opacity-100 translate-x-0"
-                  : "opacity-0 -translate-x-10"
+                isVisible ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-10"
               }`}
             >
-              <h2 className="text-4xl md:text-5xl font-bold mb-6 text-gray-900">
-                Expert Guidance Every Step
-              </h2>
+              <h2 className="text-4xl md:text-5xl font-bold mb-6 text-gray-900">Expert Guidance Every Step</h2>
               <p className="text-lg text-gray-600 mb-8 leading-relaxed">
-                Navigate your study abroad journey with confidence. Our
-                certified counselors bring decades of experience helping
-                students secure placements at top universities worldwide. From
-                selecting the perfect program to visa approval, we're with you
-                at every milestone.
+                Navigate your study abroad journey with confidence. Our certified counselors bring decades of experience
+                helping students secure placements at top universities worldwide. From selecting the perfect program to
+                visa approval, we're with you at every milestone.
               </p>
               <div className="space-y-4">
                 {[
                   {
                     title: "Personalized Profile Building",
                     desc: "Strengthen your application with expert profile assessment",
+                    href: "/services/profile-building",
                   },
                   {
                     title: "Strategic Application Planning",
                     desc: "Maximize acceptance chances with data-driven strategies",
+                    href: "/services/application-planning",
                   },
                   {
                     title: "Interview & Test Preparation",
                     desc: "Excel in admissions interviews and standardized tests",
+                    href: "/services/interview-preparation",
                   },
                   {
                     title: "End-to-End Visa Support",
                     desc: "98% visa success rate with comprehensive documentation help",
+                    href: "/services/visa-support",
                   },
                 ].map((item) => (
-                  <div key={item.title} className="flex items-start gap-3">
-                    <div className="w-2 h-2 rounded-full bg-[#1A0BF4] mt-2 shrink-0" />
+                  <Link
+                    key={item.title}
+                    href={item.href}
+                    className="flex items-start gap-3 group hover:translate-x-2 transition-transform"
+                  >
+                    <div className="w-2 h-2 rounded-full bg-[#1A0BF4] mt-2 shrink-0 group-hover:scale-125 transition-transform" />
                     <div>
-                      <span className="text-lg font-semibold text-gray-900 block">
+                      <span className="text-lg font-semibold text-gray-900 block group-hover:text-[#1A0BF4] transition-colors">
                         {item.title}
                       </span>
                       <span className="text-sm text-gray-600">{item.desc}</span>
                     </div>
-                  </div>
+                  </Link>
                 ))}
               </div>
             </div>
             <div className="relative h-96 rounded-2xl overflow-hidden shadow-xl">
-              <Image
-                src="/group-friends-planning-trip-cafe .jpg"
-                alt="Expert guidance"
-                fill
-                className="object-cover"
-              />
+              <Image src="/group-friends-planning-trip-cafe .jpg" alt="Expert guidance" fill className="object-cover" />
             </div>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <div className="relative h-96 rounded-2xl overflow-hidden shadow-xl order-2 lg:order-1">
-              <Image
-                src="/study-group-african-people.jpg"
-                alt="Community support"
-                fill
-                className="object-cover"
-              />
+              <Image src="/study-group-african-people.jpg" alt="Community support" fill className="object-cover" />
             </div>
             <div
               className={`transition-all duration-1000 order-1 lg:order-2 ${
-                isVisible
-                  ? "opacity-100 translate-x-0"
-                  : "opacity-0 translate-x-10"
+                isVisible ? "opacity-100 translate-x-0" : "opacity-0 translate-x-10"
               }`}
             >
-              <h2 className="text-4xl md:text-5xl font-bold mb-6 text-gray-900">
-                Join a Global Community
-              </h2>
+              <h2 className="text-4xl md:text-5xl font-bold mb-6 text-gray-900">Join a Global Community</h2>
               <p className="text-lg text-gray-600 mb-8 leading-relaxed">
-                You're never alone on your journey. Connect with over 10,000+
-                students and alumni who've transformed their futures through
-                international education. Access exclusive networks, mentorship
-                programs, and lifelong friendships that span continents.
+                You're never alone on your journey. Connect with over 10,000+ students and alumni who've transformed
+                their futures through international education. Access exclusive networks, mentorship programs, and
+                lifelong friendships that span continents.
               </p>
               <div className="space-y-4">
                 {[
                   {
                     title: "Active Peer Support Network",
                     desc: "Connect with current students at your dream universities",
+                    href: "/community/peer-support",
                   },
                   {
                     title: "Global Alumni Connections",
                     desc: "Tap into our network of 15,000+ successful graduates",
+                    href: "/community/alumni-network",
                   },
                   {
                     title: "Country-Specific Study Groups",
                     desc: "Join cohorts heading to your destination for shared learning",
+                    href: "/community/study-groups",
                   },
                   {
                     title: "Career Development Support",
                     desc: "Access internships, job placements, and career mentoring",
+                    href: "/community/career-development",
                   },
                 ].map((item) => (
-                  <div key={item.title} className="flex items-start gap-3">
-                    <div className="w-2 h-2 rounded-full bg-[#1A0BF4] mt-2 shrink-0" />
+                  <Link
+                    key={item.title}
+                    href={item.href}
+                    className="flex items-start gap-3 group hover:translate-x-2 transition-transform"
+                  >
+                    <div className="w-2 h-2 rounded-full bg-[#1A0BF4] mt-2 shrink-0 group-hover:scale-125 transition-transform" />
                     <div>
-                      <span className="text-lg font-semibold text-gray-900 block">
+                      <span className="text-lg font-semibold text-gray-900 block group-hover:text-[#1A0BF4] transition-colors">
                         {item.title}
                       </span>
                       <span className="text-sm text-gray-600">{item.desc}</span>
                     </div>
-                  </div>
+                  </Link>
                 ))}
               </div>
             </div>
@@ -301,5 +291,5 @@ export default function Hero() {
         </div>
       </section>
     </section>
-  );
+  )
 }
