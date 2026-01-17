@@ -10,27 +10,27 @@ jobs:
   build:
     runs-on: ubuntu-latest
     permissions:
-      contents: read # Required for checkout
+      contents: read
 
     steps:
-      # Checkout code
+      # 1. Checkout code
       - uses: actions/checkout@v4
 
-      # Setup Node.js
+      # 2. Setup Node.js
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
           node-version: '22.x'
 
-      # Install dependencies
+      # 3. Install dependencies
       - name: Install dependencies
         run: npm ci
 
-      # Build the Next.js app
+      # 4. Build Next.js
       - name: Build Next.js app
         run: npm run build
 
-      # Upload artifact for deployment (no node_modules!)
+      # 5. Upload build artifact
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
         with:
@@ -44,25 +44,25 @@ jobs:
     runs-on: ubuntu-latest
     needs: build
     permissions:
-      id-token: write  # Required for OIDC login
+      id-token: write  # Needed for OIDC login
       contents: read
 
     steps:
-      # Download the build artifact
+      # 1. Download artifact
       - name: Download build artifact
         uses: actions/download-artifact@v4
         with:
           name: next-app
 
-      # Login to Azure securely via OIDC
+      # 2. Login to Azure via OIDC
       - name: Login to Azure
         uses: azure/login@v2
         with:
-          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_BEA7EC20F225411584F9BA044181DB41 }}
-          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_462098E4B2AB47FB8FE2FC0AB0F588B3 }}
-          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_1F40BF09942E436693E09E63B1398581 }}
+          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID }}
+          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID }}
+          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID }}
 
-      # Deploy to Azure Web App
+      # 3. Deploy to Azure Web App
       - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v3
         with:
