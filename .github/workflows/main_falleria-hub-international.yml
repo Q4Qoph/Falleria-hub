@@ -1,3 +1,6 @@
+# Docs for the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
+# More GitHub Actions for Azure: https://github.com/Azure/actions
+
 name: Build and deploy Node.js app to Azure Web App - falleria-hub-international
 
 on:
@@ -10,50 +13,41 @@ jobs:
   build:
     runs-on: ubuntu-latest
     permissions:
-      contents: read
+      contents: read #This is required for actions/checkout
 
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up Node.js
+      - name: Set up Node.js version
         uses: actions/setup-node@v3
         with:
-          node-version: '22.x'   # REQUIRED for Next 15
+          node-version: '22.x'
 
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Build Next.js
-        run: npm run build
-
-      - name: Prepare artifact for deployment
+      - name: npm install, build, and test
         run: |
-          mkdir deploy
-          cp -r .next deploy/.next
-          cp -r public deploy/public
-          cp package.json deploy/package.json
-          cp package-lock.json deploy/package-lock.json
-          cp -r node_modules deploy/node_modules
+          npm install
+          npm run build --if-present
+          npm run test --if-present
 
-      - name: Upload artifact
+      - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
         with:
-          name: nextjs-app
-          path: deploy
+          name: node-app
+          path: .
 
   deploy:
     runs-on: ubuntu-latest
     needs: build
     permissions:
-      id-token: write
-      contents: read
+      id-token: write #This is required for requesting the JWT
+      contents: read #This is required for actions/checkout
 
     steps:
-      - name: Download artifact
+      - name: Download artifact from build job
         uses: actions/download-artifact@v4
         with:
-          name: nextjs-app
-
+          name: node-app
+      
       - name: Login to Azure
         uses: azure/login@v2
         with:
@@ -61,10 +55,11 @@ jobs:
           tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_462098E4B2AB47FB8FE2FC0AB0F588B3 }}
           subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_1F40BF09942E436693E09E63B1398581 }}
 
-      - name: Deploy to Azure Web App
+      - name: 'Deploy to Azure Web App'
+        id: deploy-to-webapp
         uses: azure/webapps-deploy@v3
         with:
           app-name: 'falleria-hub-international'
           slot-name: 'Production'
           package: .
-
+          
