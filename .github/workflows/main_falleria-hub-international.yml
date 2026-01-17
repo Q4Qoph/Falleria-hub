@@ -1,4 +1,4 @@
-name: Build and deploy Next.js app to Azure Web App - falleria-hub-international
+name: Build and deploy Next.js app to Azure Web App
 
 on:
   push:
@@ -10,26 +10,28 @@ jobs:
   build:
     runs-on: ubuntu-latest
     permissions:
-      contents: read # required for actions/checkout
+      contents: read # Required for checkout
 
     steps:
+      # Checkout code
       - uses: actions/checkout@v4
 
+      # Setup Node.js
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
           node-version: '22.x'
 
+      # Install dependencies
       - name: Install dependencies
         run: npm ci
 
+      # Build the Next.js app
       - name: Build Next.js app
         run: npm run build
 
-      - name: Verify build
-        run: ls -la .next
-
-      - name: Upload artifact for deployment
+      # Upload artifact for deployment (no node_modules!)
+      - name: Upload build artifact
         uses: actions/upload-artifact@v4
         with:
           name: next-app
@@ -37,7 +39,6 @@ jobs:
             .next
             package.json
             package-lock.json
-            node_modules
 
   deploy:
     runs-on: ubuntu-latest
@@ -47,11 +48,13 @@ jobs:
       contents: read
 
     steps:
-      - name: Download artifact from build job
+      # Download the build artifact
+      - name: Download build artifact
         uses: actions/download-artifact@v4
         with:
           name: next-app
 
+      # Login to Azure securely via OIDC
       - name: Login to Azure
         uses: azure/login@v2
         with:
@@ -59,6 +62,7 @@ jobs:
           tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_462098E4B2AB47FB8FE2FC0AB0F588B3 }}
           subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_1F40BF09942E436693E09E63B1398581 }}
 
+      # Deploy to Azure Web App
       - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v3
         with:
